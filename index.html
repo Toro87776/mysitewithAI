@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>吳文瑜 Amanda Wu | 數位設計師 Portfolio</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Noto Sans TC -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+                    },
+                    colors: {
+                        space: {
+                            900: '#060814',
+                            800: '#0b0f26',
+                            700: '#131b3e',
+                        },
+                        neon: {
+                            cyan: '#00f2fe',
+                            purple: '#7928ca',
+                            pink: '#ff0080',
+                            blue: '#4facfe',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 深色宇宙背景與霓虹燈光效 */
+        body {
+            background-color: #060814;
+            color: #ffffff;
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 4個角落的霓虹燈光 glow 效果 */
+        .glow-top-left {
+            position: fixed;
+            top: -100px;
+            left: -100px;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(121, 40, 202, 0.35) 0%, rgba(6, 8, 20, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glow-top-right {
+            position: fixed;
+            top: -100px;
+            right: -100px;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(0, 242, 254, 0.25) 0%, rgba(6, 8, 20, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glow-bottom-left {
+            position: fixed;
+            bottom: -100px;
+            left: -100px;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(255, 0, 128, 0.25) 0%, rgba(6, 8, 20, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glow-bottom-right {
+            position: fixed;
+            bottom: -100px;
+            right: -100px;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(79, 172, 254, 0.3) 0%, rgba(6, 8, 20, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* 磨砂玻璃科技質感 */
+        .glass-card {
+            background: rgba(19, 27, 62, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .glass-card:hover {
+            border-color: rgba(0, 242, 254, 0.3);
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.15);
+        }
+
+        /* 漸層文字 */
+        .gradient-text {
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 50%, #ff0080 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="relative">
+
+    <!-- 4角霓虹燈光氛圍 -->
+    <div class="glow-top-left"></div>
+    <div class="glow-top-right"></div>
+    <div class="glow-bottom-left"></div>
+    <div class="glow-bottom-right"></div>
+
+    <!-- 導覽列 Navbar -->
+    <header class="fixed top-0 left-0 w-full z-50 glass-card border-b border-white/10 bg-space-900/80 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- 左上角 Logo -->
+            <a href="#" class="flex items-center gap-2 group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-neon-purple via-neon-blue to-neon-cyan flex items-center justify-center font-bold text-white text-xl shadow-lg shadow-neon-blue/20 group-hover:scale-105 transition-transform duration-300">
+                    AW
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-bold tracking-wider text-lg text-white">AMANDA WU</span>
+                    <span class="text-xs text-gray-400 -mt-1">Digital Designer</span>
+                </div>
+            </a>
+
+            <!-- 桌面版 導覽選單 -->
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium">
+                <a href="#about" class="text-gray-300 hover:text-neon-cyan transition-colors duration-200">關於我</a>
+                <a href="#experience" class="text-gray-300 hover:text-neon-cyan transition-colors duration-200">工作經歷</a>
+                <a href="#skills" class="text-gray-300 hover:text-neon-cyan transition-colors duration-200">核心技能</a>
+                <a href="#portfolio" class="text-gray-300 hover:text-neon-cyan transition-colors duration-200">作品集</a>
+                <a href="#contact" class="px-5 py-2 rounded-full bg-gradient-to-r from-neon-cyan to-neon-blue text-space-900 font-semibold hover:shadow-lg hover:shadow-neon-cyan/30 transition-all duration-300 transform hover:-translate-y-0.5">聯絡資訊</a>
+            </nav>
+
+            <!-- 手機版 選單按鈕 -->
+            <button id="menu-btn" class="md:hidden text-white focus:outline-none p-2">
+                <i class="fa-solid fa-bars text-2xl"></i>
+            </button>
+        </div>
+
+        <!-- 手機版 下拉選單 -->
+        <div id="mobile-menu" class="hidden md:hidden glass-card border-t border-white/10 px-6 py-4 flex flex-col space-y-4">
+            <a href="#about" class="mobile-link text-gray-300 hover:text-neon-cyan">關於我</a>
+            <a href="#experience" class="mobile-link text-gray-300 hover:text-neon-cyan">工作經歷</a>
+            <a href="#skills" class="mobile-link text-gray-300 hover:text-neon-cyan">核心技能</a>
+            <a href="#portfolio" class="mobile-link text-gray-300 hover:text-neon-cyan">作品集</a>
+            <a href="#contact" class="mobile-link text-neon-cyan font-semibold">聯絡資訊</a>
+        </div>
+    </header>
+
+    <!-- Banner 區塊 -->
+    <section class="relative min-h-screen flex items-center justify-center pt-24 pb-12 px-6 z-10">
+        <div class="text-center max-w-4xl mx-auto space-y-6">
+            <div class="inline-block px-4 py-1.5 rounded-full border border-neon-cyan/30 bg-neon-cyan/10 text-neon-cyan text-sm tracking-wide font-medium mb-4">
+                ✨ 13 Years Digital Design Experience
+            </div>
+            <h1 class="text-5xl md:text-7xl font-extrabold text-white tracking-tight leading-tight">
+                Turning ideas into reality
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto font-light">
+                讓想法落地現實
+            </p>
+            <div class="pt-8 flex justify-center gap-4">
+                <a href="#portfolio" class="px-8 py-3.5 rounded-full bg-gradient-to-r from-neon-purple to-neon-pink text-white font-medium hover:shadow-lg hover:shadow-neon-pink/25 transition-all duration-300 hover:scale-105">
+                    瀏覽作品集
+                </a>
+                <a href="#contact" class="px-8 py-3.5 rounded-full border border-white/20 text-white font-medium hover:bg-white/10 transition-all duration-300">
+                    立即聯繫
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <main class="max-w-6xl mx-auto px-6 space-y-32 relative z-10 pb-24">
+
+        <!-- 關於我 About Me -->
+        <section id="about" class="scroll-mt-32">
+            <div class="glass-card rounded-3xl p-8 md:p-12 relative overflow-hidden">
+                <div class="grid md:grid-cols-12 gap-8 md:gap-12 items-center">
+                    <!--假女生頭像圖片 -->
+                    <div class="md:col-span-5 flex justify-center">
+                        <div class="relative group">
+                            <div class="absolute -inset-1 bg-gradient-to-r from-neon-cyan via-neon-purple to-neon-pink rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800&auto=format&fit=crop" 
+                                 alt="吳文瑜 Amanda Wu" 
+                                 class="relative rounded-2xl w-full max-w-sm object-cover shadow-2xl"
+                                 onerror="this.src='https://placehold.co/400x500/131b3e/FFFFFF?text=Amanda+Wu'">
+                        </div>
+                    </div>
+
+                    <!-- 個人文字介紹 -->
+                    <div class="md:col-span-7 space-y-6">
+                        <div class="space-y-2">
+                            <h2 class="text-xs uppercase tracking-widest text-neon-cyan font-bold">About Me</h2>
+                            <h3 class="text-3xl md:text-4xl font-bold text-white">吳文瑜 <span class="text-2xl text-gray-400 font-normal">Amanda Wu</span></h3>
+                        </div>
+
+                        <p class="text-gray-300 leading-relaxed font-light text-base md:text-lg">
+                            我是一位擁有 <span class="text-white font-semibold">13 年設計經驗</span>的數位設計師，專長涵蓋品牌識別 (CIS)、廣告與刊物印刷、數位行銷素材、客製化 RWD 網站，以及 UI/UX 與 APP 數位產品。
+                        </p>
+                        <p class="text-gray-300 leading-relaxed font-light text-base md:text-lg">
+                            過去曾參與 <span class="text-neon-cyan font-medium">國泰雲門、膳魔師、台灣菸酒、味全、美津濃</span> 及 <span class="text-neon-cyan font-medium">MOMO 導購行銷頁</span> 等品牌數位專案，擁有高質感視覺到響應式網站的跨領域經驗。
+                        </p>
+
+                        <!-- 社群連結 -->
+                        <div class="pt-4">
+                            <h4 class="text-sm uppercase tracking-wider text-gray-400 font-semibold mb-3">我的社群</h4>
+                            <div class="flex flex-wrap gap-4">
+                                <a href="#" class="w-11 h-11 rounded-full glass-card flex items-center justify-center text-gray-300 hover:text-white hover:border-neon-cyan hover:bg-neon-cyan/10 transition-all duration-300">
+                                    <i class="fa-brands fa-linkedin-in text-lg"></i>
+                                </a>
+                                <a href="#" class="w-11 h-11 rounded-full glass-card flex items-center justify-center text-gray-300 hover:text-white hover:border-neon-pink hover:bg-neon-pink/10 transition-all duration-300">
+                                    <i class="fa-brands fa-instagram text-lg"></i>
+                                </a>
+                                <a href="#" class="w-11 h-11 rounded-full glass-card flex items-center justify-center text-gray-300 hover:text-white hover:border-neon-blue hover:bg-neon-blue/10 transition-all duration-300">
+                                    <i class="fa-brands fa-facebook-f text-lg"></i>
+                                </a>
+                                <a href="#" class="w-11 h-11 rounded-full glass-card flex items-center justify-center text-gray-300 hover:text-white hover:border-neon-purple hover:bg-neon-purple/10 transition-all duration-300">
+                                    <i class="fa-brands fa-behance text-lg"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 工作經歷 Experience -->
+        <section id="experience" class="scroll-mt-32 space-y-8">
+            <div class="text-center space-y-2">
+                <h2 class="text-xs uppercase tracking-widest text-neon-cyan font-bold">Career Journey</h2>
+                <h3 class="text-3xl md:text-4xl font-bold text-white">工作經歷</h3>
+            </div>
+
+            <div class="relative border-l border-white/10 ml-4 md:ml-32 space-y-12">
+                
+                <!-- 經歷 1: momo.com -->
+                <div class="relative pl-8 md:pl-12 group">
+                    <!-- 時間軸節點 -->
+                    <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-neon-cyan ring-4 ring-space-900 group-hover:scale-125 transition-transform duration-300"></div>
+                    
+                    <div class="glass-card rounded-2xl p-6 md:p-8 space-y-4">
+                        <div class="flex flex-wrap justify-between items-start gap-4">
+                            <div>
+                                <div class="flex items-center gap-3">
+                                    <!-- 公司標誌/圖示 -->
+                                    <div class="w-8 h-8 rounded-lg bg-pink-600/20 text-pink-400 border border-pink-500/30 flex items-center justify-center font-bold text-xs">
+                                        momo
+                                    </div>
+                                    <h4 class="text-xl font-bold text-white">富邦媒體科技 momo.com Inc.</h4>
+                                </div>
+                                <p class="text-neon-cyan font-medium mt-1">網頁視覺設計師 · 正職</p>
+                            </div>
+                            <div class="text-xs text-gray-400 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+                                2023 年 8 月 - 2024 年 1 月 · 6 個月 | 台北市 · 現場
+                            </div>
+                        </div>
+
+                        <ul class="list-disc list-inside text-gray-300 space-y-1.5 text-sm md:text-base font-light">
+                            <td>導購型網頁切版製作（超級品牌日）</td><br/>
+                            <td>活動型EDM設計切版製作</td><br/>
+                            <td>促銷型素材製作 (LINE & BN)</td>
+                        </ul>
+
+                        <div class="pt-3 border-t border-white/5">
+                            <span class="text-xs text-gray-400 font-semibold tracking-wider uppercase block mb-2">重要專案</span>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 text-xs rounded-lg bg-neon-purple/20 text-neon-purple border border-neon-purple/30">善存品牌日</span>
+                                <span class="px-3 py-1 text-xs rounded-lg bg-neon-pink/20 text-neon-pink border border-neon-pink/30">蘭芝美妝盒</span>
+                                <span class="px-3 py-1 text-xs rounded-lg bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/30">郭婞淳公益網頁</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 經歷 2: 久騰網路行銷公司 -->
+                <div class="relative pl-8 md:pl-12 group">
+                    <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-neon-purple ring-4 ring-space-900 group-hover:scale-125 transition-transform duration-300"></div>
+                    
+                    <div class="glass-card rounded-2xl p-6 md:p-8 space-y-4">
+                        <div class="flex flex-wrap justify-between items-start gap-4">
+                            <div>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-lg bg-purple-600/20 text-purple-400 border border-purple-500/30 flex items-center justify-center font-bold text-xs">
+                                        久騰
+                                    </div>
+                                    <h4 class="text-xl font-bold text-white">久騰網路行銷公司</h4>
+                                </div>
+                                <p class="text-neon-purple font-medium mt-1">視覺設計專員 (網頁部) · 正職</p>
+                            </div>
+                            <div class="text-xs text-gray-400 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+                                2019 年 3 月 - 2023 年 6 月 · 4 年 4 個月 | Taipei, Taiwan · 現場
+                            </div>
+                        </div>
+
+                        <ul class="list-disc list-inside text-gray-300 space-y-1.5 text-sm md:text-base font-light">
+                            <li>活動型網站切版製作（含靜態版面設計、Banner設計）</li>
+                            <li>RWD 響應式網站製作，基礎 jQuery 套用</li>
+                            <li>消費品 EDM 設計，數位媒體素材製作（社群動態圖、GDN、電商素材設計）</li>
+                            <li>SVN 版本控制與管理 - 確保檔案最新版本</li>
+                            <li>與後端工程師、企劃、業務人員協作溝通專案進度</li>
+                        </ul>
+
+                        <div class="pt-3 border-t border-white/5">
+                            <span class="text-xs text-gray-400 font-semibold tracking-wider uppercase block mb-2">重要專案</span>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                                <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 text-xs">
+                                    <div class="text-white font-medium">2022 國泰雲門隨行吧網站</div>
+                                    <div class="text-emerald-400 text-[11px] mt-0.5">🚀 14場活動報名額滿</div>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 text-xs">
+                                    <div class="text-white font-medium">2022 泰安產險智慧旅平線上投保網站</div>
+                                    <div class="text-emerald-400 text-[11px] mt-0.5">📈 線上訂單成長 4 成</div>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 text-xs">
+                                    <div class="text-white font-medium">2019 膳魔斯會員網站</div>
+                                    <div class="text-emerald-400 text-[11px] mt-0.5">💬 LINE 會員數成長 6 成</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 經歷 3: LITEMAX 晶達光電 -->
+                <div class="relative pl-8 md:pl-12 group">
+                    <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-neon-pink ring-4 ring-space-900 group-hover:scale-125 transition-transform duration-300"></div>
+                    
+                    <div class="glass-card rounded-2xl p-6 md:p-8 space-y-4">
+                        <div class="flex flex-wrap justify-between items-start gap-4">
+                            <div>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center font-bold text-xs">
+                                        LITEMAX
+                                    </div>
+                                    <h4 class="text-xl font-bold text-white">LITEMAX 晶達光電</h4>
+                                </div>
+                                <p class="text-neon-pink font-medium mt-1">行銷企劃部設計專員 · 正職</p>
+                            </div>
+                            <div class="text-xs text-gray-400 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+                                2017 年 3 月 - 2019 年 2 月 · 2 年 | 台灣 臺北市 · 現場
+                            </div>
+                        </div>
+
+                        <ul class="list-disc list-inside text-gray-300 space-y-1.5 text-sm md:text-base font-light">
+                            <li>企業型錄製作、展覽宣傳品製作 (DM、立牌、大圖輸出)</li>
+                            <li>網站 banner、icon 設計、後台商品美化上架</li>
+                            <li>拍攝商品製作當月 EDM 電子報 (HTML)</li>
+                            <li>與協力廠商 (印刷廠、網頁工程師、展覽公司) 溝通校正事宜</li>
+                            <li>公司內部名片設計、商品陳列優化</li>
+                            <li>支援展覽人力、業務後勤行政、禮贈品管理</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 核心技能 Core Skills -->
+        <section id="skills" class="scroll-mt-32 space-y-8">
+            <div class="text-center space-y-2">
+                <h2 class="text-xs uppercase tracking-widest text-neon-cyan font-bold">Expertise</h2>
+                <h3 class="text-3xl md:text-4xl font-bold text-white">核心技能</h3>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <!-- UI/UX 設計 -->
+                <div class="glass-card rounded-2xl p-6 space-y-4 hover:translate-y-[-4px] transition-all duration-300">
+                    <div class="w-12 h-12 rounded-xl bg-neon-cyan/10 border border-neon-cyan/30 text-neon-cyan flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-pen-ruler"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-white">UI / UX 設計</h4>
+                    <ul class="space-y-2 text-sm text-gray-300 font-light">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-neon-cyan text-xs"></i> Figma</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-neon-cyan text-xs"></i> User Story</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-neon-cyan text-xs"></i> User Flow</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-neon-cyan text-xs"></i> Empathy Map</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-neon-cyan text-xs"></i> Persona</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-neon-cyan text-xs"></i> Wireframe</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-neon-cyan text-xs"></i> Prototype</li>
+                    </ul>
+                </div>
+
+                <!-- 平面設計 -->
+                <div class="glass-card rounded-2xl p-6 space-y-4 hover:translate-y-[-4px] transition-all duration-300">
+                    <div class="w-12 h-12 rounded-xl bg-neon-purple/10 border border-neon-purple/30 text-neon-purple flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-palette"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-white">平面設計</h4>
+                    <ul class="space-y-2 text-sm text-gray-300 font-light">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-neon-purple text-xs"></i> Photoshop</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-neon-purple text-xs"></i> Illustrator</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-neon-purple text-xs"></i> InDesign</li>
+                    </ul>
+                </div>
+
+                <!-- 響應式網頁設計 -->
+                <div class="glass-card rounded-2xl p-6 space-y-4 hover:translate-y-[-4px] transition-all duration-300">
+                    <div class="w-12 h-12 rounded-xl bg-neon-blue/10 border border-neon-blue/30 text-neon-blue flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-code"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-white">響應式網頁設計</h4>
+                    <ul class="space-y-2 text-sm text-gray-300 font-light">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-neon-blue text-xs"></i> CSS3</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-neon-blue text-xs"></i> HTML5</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-neon-blue text-xs"></i> JavaScript</li>
+                    </ul>
+                </div>
+
+                <!-- AI 工具 -->
+                <div class="glass-card rounded-2xl p-6 space-y-4 hover:translate-y-[-4px] transition-all duration-300">
+                    <div class="w-12 h-12 rounded-xl bg-neon-pink/10 border border-neon-pink/30 text-neon-pink flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-white">AI 工具應用</h4>
+                    <ul class="space-y-2 text-sm text-gray-300 font-light">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-neon-pink text-xs"></i> ChatGPT</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-neon-pink text-xs"></i> Gemini</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-neon-pink text-xs"></i> Loveable</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-angle-right text-neon-pink text-xs"></i> Claude</li>
+                    </ul>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 作品集 Portfolio -->
+        <section id="portfolio" class="scroll-mt-32 space-y-8">
+            <div class="text-center space-y-2">
+                <h2 class="text-xs uppercase tracking-widest text-neon-cyan font-bold">Featured Works</h2>
+                <h3 class="text-3xl md:text-4xl font-bold text-white">作品集</h3>
+            </div>
+
+            <!-- 4 個空連結區塊 -->
+            <div class="grid md:grid-cols-2 gap-8">
+                
+                <!-- 1. UIUX設計 -->
+                <a href="javascript:void(0)" class="group glass-card rounded-2xl p-8 flex flex-col justify-between min-h-[200px] border border-white/10 hover:border-neon-cyan/50 transition-all duration-300">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs font-mono text-neon-cyan">01 / DESIGN</span>
+                        <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-neon-cyan group-hover:text-space-900 transition-all duration-300">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-sm"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-2xl font-bold text-white group-hover:text-neon-cyan transition-colors">UI / UX 設計</h4>
+                        <p class="text-sm text-gray-400 mt-2 font-light">使用者體驗流程設計、APP 介面與系統 prototype 規劃</p>
+                    </div>
+                </a>
+
+                <!-- 2. 平面設計 -->
+                <a href="javascript:void(0)" class="group glass-card rounded-2xl p-8 flex flex-col justify-between min-h-[200px] border border-white/10 hover:border-neon-purple/50 transition-all duration-300">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs font-mono text-neon-purple">02 / GRAPHIC</span>
+                        <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-neon-purple group-hover:text-white transition-all duration-300">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-sm"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-2xl font-bold text-white group-hover:text-neon-purple transition-colors">平面設計</h4>
+                        <p class="text-sm text-gray-400 mt-2 font-light">品牌識別 CIS、企業刊物、廣告海報與展覽周邊</p>
+                    </div>
+                </a>
+
+                <!-- 3. 銷售EDM -->
+                <a href="javascript:void(0)" class="group glass-card rounded-2xl p-8 flex flex-col justify-between min-h-[200px] border border-white/10 hover:border-neon-pink/50 transition-all duration-300">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs font-mono text-neon-pink">03 / MARKETING</span>
+                        <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-neon-pink group-hover:text-white transition-all duration-300">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-sm"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-2xl font-bold text-white group-hover:text-neon-pink transition-colors">銷售 EDM</h4>
+                        <p class="text-sm text-gray-400 mt-2 font-light">高轉換率活動 EDM、社群行銷動態圖與電商促銷 Banner</p>
+                    </div>
+                </a>
+
+                <!-- 4. 客製化網頁切版 -->
+                <a href="javascript:void(0)" class="group glass-card rounded-2xl p-8 flex flex-col justify-between min-h-[200px] border border-white/10 hover:border-neon-blue/50 transition-all duration-300">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs font-mono text-neon-blue">04 / WEB</span>
+                        <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-neon-blue group-hover:text-space-900 transition-all duration-300">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-sm"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-2xl font-bold text-white group-hover:text-neon-blue transition-colors">客製化網頁切版</h4>
+                        <p class="text-sm text-gray-400 mt-2 font-light">RWD 響應式網頁前端切版、HTML5/CSS3/jQuery 動態呈現</p>
+                    </div>
+                </a>
+
+            </div>
+        </section>
+
+        <!-- 聯絡資訊 Contact Form -->
+        <section id="contact" class="scroll-mt-32">
+            <div class="glass-card rounded-3xl p-8 md:p-12 relative overflow-hidden">
+                <div class="max-w-2xl mx-auto space-y-8">
+                    <div class="text-center space-y-3">
+                        <h2 class="text-xs uppercase tracking-widest text-neon-cyan font-bold">Get In Touch</h2>
+                        <h3 class="text-3xl md:text-4xl font-bold text-white">有什麼想法，歡迎來談談</h3>
+                        <p class="text-gray-400 text-sm font-light">無論是專案合作、設計諮詢，都歡迎填寫下方表單或預約諮詢！</p>
+                    </div>
+
+                    <!-- 聯絡表單 -->
+                    <form id="contact-form" onsubmit="handleFormSubmit(event)" class="space-y-6">
+                        <!-- 預設直接寫入您的 GAS 部署網址 (已隱藏欄位) -->
+                        <input type="hidden" id="gas-url" value="https://script.google.com/macros/s/AKfycbwg3QGd509YidIPSQNw7cZ1Yx8PUAyGCPBYmCULNnRL8a_iHw7HLN9U5ugbeZptzMvEaQ/exec">
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-xs font-medium text-gray-300">您的姓名 / 稱呼 *</label>
+                                <input type="text" id="form-name" required placeholder="例如：王小明" class="w-full px-4 py-3 rounded-xl bg-space-800/80 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-neon-cyan transition-colors">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-medium text-gray-300">電子信箱 *</label>
+                                <input type="email" id="form-email" required placeholder="name@example.com" class="w-full px-4 py-3 rounded-xl bg-space-800/80 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-neon-cyan transition-colors">
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-xs font-medium text-gray-300">專案類型 / 主題</label>
+                            <select id="form-type" class="w-full px-4 py-3 rounded-xl bg-space-800/80 border border-white/10 text-gray-300 focus:outline-none focus:border-neon-cyan transition-colors">
+                                <option value="UI/UX 設計諮詢">UI/UX 設計諮詢</option>
+                                <option value="客製化 RWD 網頁開發">客製化 RWD 網頁開發</option>
+                                <option value="平面設計 / 品牌視覺">平面設計 / 品牌視覺</option>
+                                <option value="銷售 EDM / 行銷素材">銷售 EDM / 行銷素材</option>
+                                <option value="其他合作洽談">其他合作洽談</option>
+                            </select>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-xs font-medium text-gray-300">訊息內容 *</label>
+                            <textarea id="form-message" rows="4" required placeholder="請簡述您的需求或想法..." class="w-full px-4 py-3 rounded-xl bg-space-800/80 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-neon-cyan transition-colors"></textarea>
+                        </div>
+
+                        <!-- 成功送出提示訊息框 -->
+                        <div id="success-msg" class="hidden p-4 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-sm text-center">
+                            🎉 訊息已順利寫入 Google 試算表！我會盡快回覆您的郵件。
+                        </div>
+                        <div id="error-msg" class="hidden p-4 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-300 text-sm text-center">
+                            ❌ 送出失敗，請確認 GAS 部署網址是否正確。
+                        </div>
+
+                        <!-- 預約諮詢 & 送出按鈕區塊 -->
+                        <div class="flex flex-col sm:flex-row gap-4 pt-2">
+                            <button type="submit" id="submit-btn" class="flex-1 py-3.5 px-6 rounded-xl bg-gradient-to-r from-neon-cyan to-neon-blue text-space-900 font-bold hover:shadow-lg hover:shadow-neon-cyan/20 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2">
+                                <span>送出訊息</span>
+                            </button>
+                            <button type="button" onclick="alertMsg()" class="flex-1 py-3.5 px-6 rounded-xl border border-neon-pink/50 text-neon-pink font-semibold hover:bg-neon-pink/10 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2">
+                                <i class="fa-regular fa-calendar-check"></i>
+                                預約諮詢
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 bg-space-900/90 py-8 text-center text-gray-500 text-xs relative z-10">
+        <p>© 2026 Amanda Wu. All rights reserved. Designed & Built with passion.</p>
+    </footer>
+
+    <!-- JavaScript 互動效果 -->
+    <script>
+        // 手機版漢堡選單切換
+        const menuBtn = document.getElementById('menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+
+        menuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // 使用 JSONP 避開 CORS 限制將資料傳遞至 Google Apps Script
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            const gasUrl = document.getElementById('gas-url').value.trim();
+            const name = document.getElementById('form-name').value.trim();
+            const email = document.getElementById('form-email').value.trim();
+            const type = document.getElementById('form-type').value;
+            const message = document.getElementById('form-message').value.trim();
+            const submitBtn = document.getElementById('submit-btn');
+            const successMsg = document.getElementById('success-msg');
+            const errorMsg = document.getElementById('error-msg');
+
+            // 按鈕載入狀態
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 傳送中...';
+            successMsg.classList.add('hidden');
+            errorMsg.classList.add('hidden');
+
+            // 隨機建立 callback 名稱
+            const callbackName = 'gasCallback_' + Math.round(100000 * Math.random());
+
+            // 註冊全域 Callback
+            window[callbackName] = function(data) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>送出訊息</span>';
+                delete window[callbackName];
+                document.body.removeChild(script);
+
+                if (data && data.result === 'success') {
+                    successMsg.classList.remove('hidden');
+                    document.getElementById('contact-form').reset();
+                    setTimeout(() => {
+                        successMsg.classList.add('hidden');
+                    }, 5000);
+                } else {
+                    errorMsg.classList.remove('hidden');
+                }
+            };
+
+            // 構建帶有參數的 Script 標籤
+            const query = `?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&type=${encodeURIComponent(type)}&message=${encodeURIComponent(message)}&callback=${callbackName}`;
+            const script = document.createElement('script');
+            script.src = gasUrl + query;
+            script.onerror = function() {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>送出訊息</span>';
+                errorMsg.classList.remove('hidden');
+                delete window[callbackName];
+                document.body.removeChild(script);
+            };
+
+            document.body.appendChild(script);
+        }
+
+        // 預約諮詢提示訊息
+        function alertMsg() {
+            const msg = document.getElementById('success-msg');
+            msg.innerText = "📅 預約諮詢系統已啟動，團隊將會在 24 小時內發送會議邀請函給您！";
+            msg.classList.remove('hidden');
+            setTimeout(() => {
+                msg.classList.add('hidden');
+                msg.innerText = "🎉 訊息已順利寫入 Google 試算表！我會盡快回覆您的郵件。";
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
