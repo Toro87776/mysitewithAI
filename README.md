@@ -1,7 +1,7 @@
 # 🌐 My Web Portfolio — 吳文瑜 (Amanda Wu)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Ready-blue.svg)](https://toro87776.github.io/mysite_ai/)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Ready-blue.svg)](https://toro87776.github.io/mysitewithAI/)
 [![Stack: HTML5 | TailwindCSS | JS ES6+](https://img.shields.io/badge/Stack-HTML5%20%7C%20TailwindCSS%20%7C%20JS-purple.svg)](#-tech-stack--apis)
 [![Responsive: Mobile First](https://img.shields.io/badge/Design-Mobile--First-cyan.svg)](#-features)
 
@@ -14,7 +14,7 @@
 
 * **主要入口網站**：`index.html` (My Web Portfolio)
 * **設計師個人簡歷**：`about/index.html`
-* **GitHub Pages 部署網址**：[https://toro87776.github.io/mysite_ai/](https://toro87776.github.io/mysite_ai/)
+* **GitHub Pages 部署網址**：[https://toro87776.github.io/mysitewithAI/](https://toro87776.github.io/mysitewithAI/)
 
 ---
 
@@ -112,8 +112,8 @@ mysite_ai/
 
 1. **Clone 本專案：**
    ```bash
-   git clone https://github.com/Toro87776/mysite_ai.git
-   cd mysite_ai
+   git clone https://github.com/Toro87776/mysitewithAI.git
+   cd mysitewithAI
    ```
 
 2. **直接開啟：**
@@ -126,7 +126,7 @@ mysite_ai/
 若欲啟用 GitHub Pages 將作品集公開上線：
 1. 進入本儲存庫的 **Settings** > **Pages**。
 2. 在 **Branch** 處選擇 `main` 分支，資料夾選擇 `/ (root)`。
-3. 點選 **Save**，約 1~2 分鐘後即可透過 `https://toro87776.github.io/mysite_ai/` 訪問公開網站！
+3. 點選 **Save**，約 1~2 分鐘後即可透過 `https://toro87776.github.io/mysitewithAI/` 訪問公開網站！
 
 ---
 
