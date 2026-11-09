@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>My Web Portfolio | 吳文瑜 Amanda Wu</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Noto Sans TC -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+                    },
+                    colors: {
+                        space: {
+                            950: '#03050d',
+                            900: '#060814',
+                            850: '#090d1f',
+                            800: '#0b0f26',
+                            700: '#131b3e',
+                            600: '#1c2754',
+                        },
+                        neon: {
+                            cyan: '#00f2fe',
+                            purple: '#7928ca',
+                            pink: '#ff0080',
+                            blue: '#4facfe',
+                            emerald: '#10b981',
+                            amber: '#f59e0b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            color-scheme: dark;
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        body {
+            background-color: #060814;
+            color: #ffffff;
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+            padding-bottom: calc(76px + var(--safe-bottom));
+        }
+        @media (min-width: 1024px) {
+            body {
+                padding-bottom: 0px;
+            }
+        }
+
+        /* 霓虹環境燈光 */
+        .glow-ambient-1 {
+            position: fixed;
+            top: -100px;
+            left: -100px;
+            width: 420px;
+            height: 420px;
+            background: radial-gradient(circle, rgba(121, 40, 202, 0.28) 0%, rgba(6, 8, 20, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .glow-ambient-2 {
+            position: fixed;
+            top: 25%;
+            right: -120px;
+            width: 460px;
+            height: 460px;
+            background: radial-gradient(circle, rgba(0, 242, 254, 0.2) 0%, rgba(6, 8, 20, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .glow-ambient-3 {
+            position: fixed;
+            bottom: 10%;
+            left: -100px;
+            width: 440px;
+            height: 440px;
+            background: radial-gradient(circle, rgba(255, 0, 128, 0.18) 0%, rgba(6, 8, 20, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* 磨砂玻璃卡片 */
+        .glass-card {
+            background: rgba(19, 27, 62, 0.5);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            border-color: rgba(0, 242, 254, 0.35);
+            box-shadow: 0 12px 30px -10px rgba(0, 242, 254, 0.2);
+        }
+
+        /* 標題漸層 */
+        .gradient-heading {
+            background: linear-gradient(135deg, #ffffff 10%, #00f2fe 50%, #7928ca 85%, #ff0080 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 自訂捲軸隱藏 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* 音樂波形 */
+        @keyframes soundWave {
+            0%, 100% { height: 4px; }
+            50% { height: 16px; }
+        }
+        .wave-bar {
+            width: 3px;
+            background: #00f2fe;
+            border-radius: 2px;
+            animation: soundWave 1.2s ease-in-out infinite;
+        }
+        .wave-bar:nth-child(2) { animation-delay: 0.2s; background: #4facfe; }
+        .wave-bar:nth-child(3) { animation-delay: 0.4s; background: #7928ca; }
+        .wave-bar:nth-child(4) { animation-delay: 0.1s; background: #ff0080; }
+        .wave-bar.paused {
+            animation-play-state: paused;
+            height: 4px;
+        }
+
+        /* 圖片放大模態視窗 */
+        .modal-active {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+    </style>
+</head>
+<body class="selection:bg-neon-cyan/25 selection:text-neon-cyan">
+
+    <!-- 氛圍背景光暈 -->
+    <div class="glow-ambient-1"></div>
+    <div class="glow-ambient-2"></div>
+    <div class="glow-ambient-3"></div>
+
+    <!-- 頂端導覽列 Navbar (Mobile-First) -->
+    <header class="sticky top-0 left-0 w-full z-40 glass-card border-b border-white/10 bg-space-950/85 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
+            
+            <!-- 品牌 Logo -->
+            <a href="#hero" class="flex items-center gap-2.5 group">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-neon-purple via-neon-blue to-neon-cyan flex items-center justify-center font-bold text-white text-base sm:text-lg shadow-md shadow-neon-blue/20 group-hover:scale-105 transition-transform">
+                    AW
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-extrabold tracking-wider text-sm sm:text-base text-white">AMANDA WU</span>
+                    <span class="text-[10px] text-gray-400 -mt-1 tracking-wider uppercase font-medium">Web Portfolio</span>
+                </div>
+            </a>
+
+            <!-- 桌面版導覽 -->
+            <nav class="hidden md:flex items-center space-x-7 text-sm font-medium">
+                <a href="#catalog" class="text-gray-300 hover:text-neon-cyan transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-folder-tree text-xs text-neon-cyan"></i> 專案目錄
+                </a>
+                <a href="#projects" class="text-gray-300 hover:text-neon-cyan transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-cubes text-xs text-neon-blue"></i> 專案展示
+                </a>
+                <a href="#about" class="text-gray-300 hover:text-neon-cyan transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-user-tie text-xs text-neon-pink"></i> 關於我
+                </a>
+                <a href="./about/index.html#contact" class="px-4 py-2 rounded-full bg-gradient-to-r from-neon-cyan to-neon-blue text-space-950 font-bold hover:shadow-lg hover:shadow-neon-cyan/25 transition-all transform hover:-translate-y-0.5">
+                    合作聯繫
+                </a>
+            </nav>
+
+            <!-- 右上方行動版音頻快速控制按鈕 -->
+            <div class="flex items-center gap-2">
+                <button id="nav-audio-btn" class="w-9 h-9 rounded-full bg-white/5 border border-white/10 text-gray-300 hover:text-neon-cyan hover:border-neon-cyan/40 flex items-center justify-center transition-all" title="播放/暫停背景音樂" aria-label="Toggle Audio">
+                    <i id="nav-audio-icon" class="fa-solid fa-music text-xs"></i>
+                </button>
+                <a href="./about/index.html#contact" class="md:hidden text-xs px-3 py-1.5 rounded-full bg-neon-cyan/20 border border-neon-cyan/40 text-neon-cyan font-medium">
+                    聯繫
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主視覺 Hero Section (Mobile Optimized) -->
+    <section id="hero" class="relative pt-12 pb-14 sm:pt-20 sm:pb-20 px-4 sm:px-6 z-10">
+        <div class="max-w-4xl mx-auto text-center space-y-5 sm:space-y-6">
+            
+            <!-- 標籤徽章 -->
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-neon-cyan/30 bg-neon-cyan/10 text-neon-cyan text-xs font-semibold tracking-wide">
+                <span class="w-2 h-2 rounded-full bg-neon-cyan animate-pulse"></span>
+                <span>Mobile-First Web & UI Showcase</span>
+            </div>
+
+            <!-- 主標題 (要求：'My Web Portfolio') -->
+            <h1 class="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight leading-tight gradient-heading">
+                My Web Portfolio
+            </h1>
+
+            <!-- 摘要說明 -->
+            <p class="text-sm sm:text-lg md:text-xl text-gray-300 max-w-2xl mx-auto font-light leading-relaxed">
+                全視角探索現代互動應用程式、商業數據診斷系統與高質感視覺設計工程。
+            </p>
+
+            <!-- 行動端優先快捷按鈕 -->
+            <div class="pt-2 flex flex-wrap justify-center gap-3">
+                <a href="#catalog" class="px-6 py-3 rounded-full bg-gradient-to-r from-neon-purple via-neon-blue to-neon-cyan text-white text-sm font-semibold shadow-lg shadow-neon-blue/20 hover:scale-105 transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-xs"></i> 快速瀏覽專案目錄
+                </a>
+                <a href="#about" class="px-6 py-3 rounded-full glass-card border border-white/20 text-white text-sm font-medium hover:bg-white/10 transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-id-card text-xs text-neon-pink"></i> 關於設計師
+                </a>
+            </div>
+
+            <!-- 數據指標橫條 (Mobile Scrollable) -->
+            <div class="pt-6 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto text-left">
+                <div class="glass-card rounded-2xl p-3.5 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-neon-cyan/15 text-neon-cyan flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-laptop-code"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-bold text-white">4 個</div>
+                        <div class="text-[11px] text-gray-400">獨立 Web Apps</div>
+                    </div>
+                </div>
+                <div class="glass-card rounded-2xl p-3.5 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-neon-blue/15 text-neon-blue flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-award"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-bold text-white">13+ 年</div>
+                        <div class="text-[11px] text-gray-400">數位設計資歷</div>
+                    </div>
+                </div>
+                <div class="glass-card rounded-2xl p-3.5 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-neon-purple/15 text-neon-purple flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-bold text-white">100%</div>
+                        <div class="text-[11px] text-gray-400">行動優先適配</div>
+                    </div>
+                </div>
+                <div class="glass-card rounded-2xl p-3.5 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-neon-pink/15 text-neon-pink flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-bold text-white">820+</div>
+                        <div class="text-[11px] text-gray-400">BI 訂單數據引擎</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- 主要內容區 -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 space-y-20 sm:space-y-28 relative z-10">
+
+        <!-- 專案目錄區塊 Project Directory / Catalog -->
+        <section id="catalog" class="scroll-mt-24 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-white/10 pb-4">
+                <div>
+                    <span class="text-xs uppercase tracking-widest text-neon-cyan font-bold block mb-1">
+                        <i class="fa-solid fa-sitemap mr-1"></i> Interactive Project Index
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white">專案目錄 (Project Directory)</h2>
+                </div>
+                <span class="text-xs text-gray-400">可依類別即時篩選或搜尋各項作品</span>
+            </div>
+
+            <!-- 目錄分類篩選標籤 (Mobile Horizontal Scroll) -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar" id="catalog-filters">
+                <button class="filter-btn active px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap bg-neon-cyan text-space-950 shadow-md transition-all" data-category="all">
+                    全部專案 (8)
+                </button>
+                <button class="filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap bg-white/5 border border-white/10 text-gray-300 hover:text-white hover:border-white/20 transition-all" data-category="app">
+                    ⚡ 互動 Web Apps (4)
+                </button>
+                <button class="filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap bg-white/5 border border-white/10 text-gray-300 hover:text-white hover:border-white/20 transition-all" data-category="data">
+                    📊 數據分析與企業系統 (2)
+                </button>
+                <button class="filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap bg-white/5 border border-white/10 text-gray-300 hover:text-white hover:border-white/20 transition-all" data-category="design">
+                    🎨 視覺設計與架構 (2)
+                </button>
+            </div>
+
+            <!-- 即時搜尋輸入框 -->
+            <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                <input type="text" id="catalog-search" placeholder="搜尋專案名稱、使用的 API 或關鍵字..." class="w-full pl-10 pr-4 py-3 rounded-2xl bg-space-850 border border-white/10 text-white placeholder-gray-500 text-xs sm:text-sm focus:outline-none focus:border-neon-cyan transition-colors">
+            </div>
+
+            <!-- 目錄快速跳轉索引清單 (Directory Table/List) -->
+            <div class="glass-card rounded-2xl overflow-hidden divide-y divide-white/5 text-xs sm:text-sm">
+                <div class="p-3 bg-white/5 font-semibold text-gray-400 flex items-center justify-between text-[11px] sm:text-xs uppercase tracking-wider">
+                    <span>專案名稱與類型</span>
+                    <span>主要技術 / API</span>
+                    <span>快速跳轉</span>
+                </div>
+                
+                <a href="#card-weather" class="catalog-item flex items-center justify-between p-3.5 hover:bg-white/5 transition-colors group" data-title="台灣即時天氣觀測站" data-cat="app">
+                    <div class="flex items-center gap-3">
+                        <span class="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-300 flex items-center justify-center text-xs">🌤️</span>
+                        <div>
+                            <span class="font-bold text-white group-hover:text-neon-cyan transition-colors">台灣即時天氣觀測站</span>
+                            <span class="block text-[10px] text-gray-400">Bento Grid 天氣資訊面板</span>
+                        </div>
+                    </div>
+                    <span class="hidden sm:inline-block text-xs text-gray-400 font-mono">Geolocation · Chart.js</span>
+                    <span class="text-neon-cyan text-xs font-semibold flex items-center gap-1">檢視 <i class="fa-solid fa-angle-right text-[10px]"></i></span>
+                </a>
+
+                <a href="#card-dingsang" class="catalog-item flex items-center justify-between p-3.5 hover:bg-white/5 transition-colors group" data-title="鼎盛銷售經營診斷儀表板" data-cat="data">
+                    <div class="flex items-center gap-3">
+                        <span class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center text-xs">📊</span>
+                        <div>
+                            <span class="font-bold text-white group-hover:text-neon-amber transition-colors">鼎盛銷售經營診斷儀表板</span>
+                            <span class="block text-[10px] text-gray-400">820 筆 B2B 訂單分析與 Pareto 診斷</span>
+                        </div>
+                    </div>
+                    <span class="hidden sm:inline-block text-xs text-gray-400 font-mono">SheetJS · Chart.js · Drag&Drop</span>
+                    <span class="text-neon-amber text-xs font-semibold flex items-center gap-1">檢視 <i class="fa-solid fa-angle-right text-[10px]"></i></span>
+                </a>
+
+                <a href="#card-tarot" class="catalog-item flex items-center justify-between p-3.5 hover:bg-white/5 transition-colors group" data-title="森語塔羅・心靈占卜" data-cat="app">
+                    <div class="flex items-center gap-3">
+                        <span class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-xs">🌿</span>
+                        <div>
+                            <span class="font-bold text-white group-hover:text-emerald-300 transition-colors">森語塔羅・心靈占卜</span>
+                            <span class="block text-[10px] text-gray-400">78 張偉特牌 3D 翻轉占卜體驗</span>
+                        </div>
+                    </div>
+                    <span class="hidden sm:inline-block text-xs text-gray-400 font-mono">Web Storage · CSS 3D Engine</span>
+                    <span class="text-emerald-400 text-xs font-semibold flex items-center gap-1">檢視 <i class="fa-solid fa-angle-right text-[10px]"></i></span>
+                </a>
+
+                <a href="#card-org" class="catalog-item flex items-center justify-between p-3.5 hover:bg-white/5 transition-colors group" data-title="部門階層架構與人員異動系統" data-cat="data">
+                    <div class="flex items-center gap-3">
+                        <span class="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center text-xs">🏢</span>
+                        <div>
+                            <span class="font-bold text-white group-hover:text-neon-purple transition-colors">部門階層架構與人員異動系統</span>
+                            <span class="block text-[10px] text-gray-400">企業級樹狀組織與 HR 調動台</span>
+                        </div>
+                    </div>
+                    <span class="hidden sm:inline-block text-xs text-gray-400 font-mono">DOM Tree Traversal · Modal API</span>
+                    <span class="text-neon-purple text-xs font-semibold flex items-center gap-1">檢視 <i class="fa-solid fa-angle-right text-[10px]"></i></span>
+                </a>
+
+                <a href="#card-portfolio" class="catalog-item flex items-center justify-between p-3.5 hover:bg-white/5 transition-colors group" data-title="吳文瑜 個人數位設計作品集" data-cat="app">
+                    <div class="flex items-center gap-3">
+                        <span class="w-7 h-7 rounded-lg bg-pink-500/20 text-pink-300 flex items-center justify-center text-xs">💼</span>
+                        <div>
+                            <span class="font-bold text-white group-hover:text-neon-pink transition-colors">吳文瑜 個人數位設計作品集</span>
+                            <span class="block text-[10px] text-gray-400">13 年資歷簡歷與 GAS 試算表串接</span>
+                        </div>
+                    </div>
+                    <span class="hidden sm:inline-block text-xs text-gray-400 font-mono">Google Apps Script · JSONP API</span>
+                    <span class="text-neon-pink text-xs font-semibold flex items-center gap-1">檢視 <i class="fa-solid fa-angle-right text-[10px]"></i></span>
+                </a>
+
+                <a href="#card-notion" class="catalog-item flex items-center justify-between p-3.5 hover:bg-white/5 transition-colors group" data-title="巷仔內文具行智慧營銷管理系統" data-cat="design">
+                    <div class="flex items-center gap-3">
+                        <span class="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-300 flex items-center justify-center text-xs">🏪</span>
+                        <div>
+                            <span class="font-bold text-white group-hover:text-neon-cyan transition-colors">巷仔內文具行智慧營銷系統</span>
+                            <span class="block text-[10px] text-gray-400">Notion 零售進銷存營運體系</span>
+                        </div>
+                    </div>
+                    <span class="hidden sm:inline-block text-xs text-gray-400 font-mono">Notion API · Rollup Calculation</span>
+                    <span class="text-neon-cyan text-xs font-semibold flex items-center gap-1">檢視 <i class="fa-solid fa-angle-right text-[10px]"></i></span>
+                </a>
+
+                <a href="#card-yonggo" class="catalog-item flex items-center justify-between p-3.5 hover:bg-white/5 transition-colors group" data-title="YongGO 幼犬問卷洞察資訊圖" data-cat="design">
+                    <div class="flex items-center gap-3">
+                        <span class="w-7 h-7 rounded-lg bg-rose-500/20 text-rose-300 flex items-center justify-center text-xs">🐶</span>
+                        <div>
+                            <span class="font-bold text-white group-hover:text-rose-400 transition-colors">YongGO 幼犬問卷洞察資訊圖</span>
+                            <span class="block text-[10px] text-gray-400">飼主痛點調研與視覺化呈現</span>
+                        </div>
+                    </div>
+                    <span class="hidden sm:inline-block text-xs text-gray-400 font-mono">Data Aggregation · Vector Canvas</span>
+                    <span class="text-rose-400 text-xs font-semibold flex items-center gap-1">檢視 <i class="fa-solid fa-angle-right text-[10px]"></i></span>
+                </a>
+
+                <a href="#card-ia" class="catalog-item flex items-center justify-between p-3.5 hover:bg-white/5 transition-colors group" data-title="網站整體資訊架構規劃圖" data-cat="design">
+                    <div class="flex items-center gap-3">
+                        <span class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center text-xs">📐</span>
+                        <div>
+                            <span class="font-bold text-white group-hover:text-indigo-400 transition-colors">網站整體資訊架構規劃圖</span>
+                            <span class="block text-[10px] text-gray-400">IA 階層、線框原型與 User Flow</span>
+                        </div>
+                    </div>
+                    <span class="hidden sm:inline-block text-xs text-gray-400 font-mono">UX Architecture · Wireframing</span>
+                    <span class="text-indigo-400 text-xs font-semibold flex items-center gap-1">檢視 <i class="fa-solid fa-angle-right text-[10px]"></i></span>
+                </a>
+            </div>
+        </section>
+
+        <!-- 專案詳細卡片展示區塊 Project Showcase Cards -->
+        <section id="projects" class="scroll-mt-24 space-y-10">
+            <div class="border-b border-white/10 pb-4">
+                <span class="text-xs uppercase tracking-widest text-neon-blue font-bold block mb-1">
+                    <i class="fa-solid fa-layer-group mr-1"></i> Comprehensive Project Cards
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-white">專案詳細卡片展示 (Project Cards)</h2>
+                <p class="text-xs sm:text-sm text-gray-400 mt-1">
+                    每個專案均包含約 100 字核心介紹、運用之主要 API 與技術規格、實際落地應用場景，以及直接啟動按鈕。
+                </p>
+            </div>
+
+            <!-- 卡片格網 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8" id="project-cards-container">
+
+                <!-- 卡片 1: 台灣即時天氣觀測站 -->
+                <div id="card-weather" class="project-card glass-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden group border border-white/10 hover:border-neon-cyan/40" data-cat="app">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30 flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-ping"></span>
+                                氣象數據應用 · Bento Grid
+                            </span>
+                            <span class="text-[11px] font-mono text-gray-400">APP #01</span>
+                        </div>
+
+                        <h3 class="text-xl sm:text-2xl font-bold text-white group-hover:text-neon-cyan transition-colors flex items-center gap-2">
+                            <span>🌤️ 台灣即時天氣觀測站</span>
+                        </h3>
+
+                        <!-- 100字左右專案介紹 -->
+                        <div class="text-xs sm:text-sm text-gray-300 leading-relaxed font-light p-3.5 rounded-2xl bg-white/5 border border-white/5">
+                            <strong class="text-white block font-medium mb-1">專案核心介紹：</strong>
+                            本專案採用當代流行之 Bento Grid（便當盒風格）模組化介面設計，專為行動裝置打造流暢直覺的即時氣象探索體驗。系統整合全台主要觀測站數據，提供每小時即時氣溫、降雨機率預警、紫外線強度、體感溫差及空氣品質指標（AQI）。透過動態溫差趨勢圖與風速風向圖表，將繁瑣的數值氣象資料轉化為清晰易讀的圖形化視覺，協助使用者在快節奏生活中迅速掌握出行天氣變換與穿著建議。
+                        </div>
+
+                        <!-- 運用的 API 列表 -->
+                        <div class="space-y-2 pt-1">
+                            <span class="text-xs font-semibold text-neon-cyan flex items-center gap-1.5">
+                                <i class="fa-solid fa-microchip"></i> 運用的 API 與核心技術：
+                            </span>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-300 border border-blue-500/20">中央氣象署觀測資料 API</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-300 border border-blue-500/20">Browser Geolocation API (定位)</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-300 border border-blue-500/20">Chart.js HTML5 Canvas API</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-300 border border-blue-500/20">Fetch / RESTful JSON API</span>
+                            </div>
+                        </div>
+
+                        <!-- 應用場景 -->
+                        <div class="space-y-1.5 pt-1">
+                            <span class="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-map-location-dot text-blue-400"></i> 應用場景 (Use Cases)：
+                            </span>
+                            <p class="text-xs text-gray-400 leading-normal">
+                                每日上班族與學童通勤穿著決策、戶外賽事與露營行程即時降雨預警、智慧城市生活資訊看板，以及旅行者的在地隨身氣候助理。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 啟動按鈕 (Touch-Friendly) -->
+                    <div class="pt-6 border-t border-white/10 mt-6">
+                        <a href="apps/weather.html" target="_blank" class="w-full py-3 px-5 rounded-xl bg-gradient-to-r from-blue-600 to-neon-cyan text-space-950 font-bold text-sm flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-neon-cyan/25 transition-all">
+                            <span>打開 / 啟動專案 (Launch Web App)</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 卡片 2: 鼎盛銷售經營診斷儀表板 -->
+                <div id="card-dingsang" class="project-card glass-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden group border border-white/10 hover:border-amber-400/40" data-cat="data">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
+                                商業數據決策 · BI Dashboard
+                            </span>
+                            <span class="text-[11px] font-mono text-gray-400">DATA #02</span>
+                        </div>
+
+                        <h3 class="text-xl sm:text-2xl font-bold text-white group-hover:text-amber-400 transition-colors flex items-center gap-2">
+                            <span>📊 鼎盛銷售經營診斷儀表板</span>
+                        </h3>
+
+                        <!-- 100字左右專案介紹 -->
+                        <div class="text-xs sm:text-sm text-gray-300 leading-relaxed font-light p-3.5 rounded-2xl bg-white/5 border border-white/5">
+                            <strong class="text-white block font-medium mb-1">專案核心介紹：</strong>
+                            這是一套專為企業高階決策者與業務主管打造的商業診斷儀表板。系統內建超過 820 筆 B2B 擬真銷售訂單分析引擎，並支援使用者即時拖曳上傳外部 Excel 與 CSV 檔案進行即時分析。核心涵蓋 Pareto 虧損原因深度歸因、業務員折扣越權偵測、大客戶集中度營運風險評估及產品售後退貨成本損耗分析。透過多維度篩選器與動態視覺圖表，協助管理層迅速鎖定利潤侵蝕漏洞並制定精準修正決策。
+                        </div>
+
+                        <!-- 運用的 API 列表 -->
+                        <div class="space-y-2 pt-1">
+                            <span class="text-xs font-semibold text-amber-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-microchip"></i> 運用的 API 與核心技術：
+                            </span>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/20">SheetJS / XLSX.js API (Excel 解析)</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/20">Chart.js Multi-Axis / Bubble API</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/20">HTML5 Drag and Drop API</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/20">FileReader API (本機陣列串流)</span>
+                            </div>
+                        </div>
+
+                        <!-- 應用場景 -->
+                        <div class="space-y-1.5 pt-1">
+                            <span class="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-chart-line text-amber-400"></i> 應用場景 (Use Cases)：
+                            </span>
+                            <p class="text-xs text-gray-400 leading-normal">
+                                企業每月董事會營運健檢、B2B 銷售通路毛利稽核、業務經理季度業績與折扣權限核定、產品線生命週期淘汰評估與財務風控。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 啟動按鈕 -->
+                    <div class="pt-6 border-t border-white/10 mt-6">
+                        <a href="apps/DingSangCo.%20Pseudonymized%20sales%20analyze%20Dashboard%C2%A0.html" target="_blank" class="w-full py-3 px-5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-400 text-space-950 font-bold text-sm flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-amber-400/25 transition-all">
+                            <span>打開 / 啟動儀表板 (Launch Dashboard)</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 卡片 3: 森語塔羅・心靈占卜 -->
+                <div id="card-tarot" class="project-card glass-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden group border border-white/10 hover:border-emerald-400/40" data-cat="app">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                                沉浸體驗 · 塔羅心靈
+                            </span>
+                            <span class="text-[11px] font-mono text-gray-400">APP #03</span>
+                        </div>
+
+                        <h3 class="text-xl sm:text-2xl font-bold text-white group-hover:text-emerald-300 transition-colors flex items-center gap-2">
+                            <span>🌿 森語塔羅・心靈占卜</span>
+                        </h3>
+
+                        <!-- 100字左右專案介紹 -->
+                        <div class="text-xs sm:text-sm text-gray-300 leading-relaxed font-light p-3.5 rounded-2xl bg-white/5 border border-white/5">
+                            <strong class="text-white block font-medium mb-1">專案核心介紹：</strong>
+                            森語塔羅是一款融合自然美學與深度心靈指引的互動式 Web 應用程式。介面採用深翠森林色調與磨砂玻璃光暈，內建完整的 78 張偉特塔羅牌（包含 22 張大阿爾克那與 56 張小阿爾克那），並具備正逆位雙向解讀資料庫。系統模擬真實物理洗牌動態，並透過流暢的 3D 卡牌翻轉動畫呈現儀式感。支援單張啟示、過去現在未來以及身心靈三角牌陣，占卜結果亦自動同步儲存於本機歷史紀錄，提供溫柔內省空間。
+                        </div>
+
+                        <!-- 運用的 API 列表 -->
+                        <div class="space-y-2 pt-1">
+                            <span class="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-microchip"></i> 運用的 API 與核心技術：
+                            </span>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">Web Storage API (localStorage 紀錄存取)</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">CSS 3D Transforms / Perspective Engine</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">Dynamic DOM Shuffling & Transition API</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">Web Vibration / Interaction Feedback</span>
+                            </div>
+                        </div>
+
+                        <!-- 應用場景 -->
+                        <div class="space-y-1.5 pt-1">
+                            <span class="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-seedling text-emerald-400"></i> 應用場景 (Use Cases)：
+                            </span>
+                            <p class="text-xs text-gray-400 leading-normal">
+                                個人每日冥想晨間指引、面對人生轉折與工作瓶頸之自我對話引導、心理諮商破冰小工具，以及沉浸式數位休閒體驗。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 啟動按鈕 -->
+                    <div class="pt-6 border-t border-white/10 mt-6">
+                        <a href="apps/Taro%20forest%20style.html" target="_blank" class="w-full py-3 px-5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-400 text-space-950 font-bold text-sm flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-emerald-400/25 transition-all">
+                            <span>打開 / 啟動占卜 (Launch Tarot)</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 卡片 4: 部門階層架構與人員異動系統 -->
+                <div id="card-org" class="project-card glass-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden group border border-white/10 hover:border-neon-purple/40" data-cat="data">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-ping"></span>
+                                組織架構 · 人資系統
+                            </span>
+                            <span class="text-[11px] font-mono text-gray-400">SYS #04</span>
+                        </div>
+
+                        <h3 class="text-xl sm:text-2xl font-bold text-white group-hover:text-neon-purple transition-colors flex items-center gap-2">
+                            <span>🏢 部門階層架構與人員異動系統</span>
+                        </h3>
+
+                        <!-- 100字左右專案介紹 -->
+                        <div class="text-xs sm:text-sm text-gray-300 leading-relaxed font-light p-3.5 rounded-2xl bg-white/5 border border-white/5">
+                            <strong class="text-white block font-medium mb-1">專案核心介紹：</strong>
+                            專為中大型企業設計的人力資源組織架構與人員調動平台。透過直觀的樹狀圖層級視覺化，即時呈現企業跨事業群、部門及團隊的從屬關係與各層級員額編制。系統支援組織階層靈活調整、員工職等薪級設定，並具備完整的人事調動指派流程與歷程稽核紀錄。讓 HR 與部門主管在進行組織重組、跨部門調遣或專案編組時，能以視覺化方式快速評估團隊負載與權責劃分，大幅提升跨部門協作效率。
+                        </div>
+
+                        <!-- 運用的 API 列表 -->
+                        <div class="space-y-2 pt-1">
+                            <span class="text-xs font-semibold text-neon-purple flex items-center gap-1.5">
+                                <i class="fa-solid fa-microchip"></i> 運用的 API 與核心技術：
+                            </span>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-purple-500/10 text-purple-300 border border-purple-500/20">DOM Tree Traversal & Hierarchical API</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-purple-500/10 text-purple-300 border border-purple-500/20">Event Delegation & Modal API</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-purple-500/10 text-purple-300 border border-purple-500/20">JSON State Mutation & Filter Engine</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-purple-500/10 text-purple-300 border border-purple-500/20">Custom Audit Log Tracker</span>
+                            </div>
+                        </div>
+
+                        <!-- 應用場景 -->
+                        <div class="space-y-1.5 pt-1">
+                            <span class="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-people-roof text-purple-400"></i> 應用場景 (Use Cases)：
+                            </span>
+                            <p class="text-xs text-gray-400 leading-normal">
+                                企業併購後的部門整併、大型集團年度員額編制規劃 (Headcount Budgeting)、跨專案敏捷小組人員借調管理與企業內規稽核審查。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 啟動按鈕 -->
+                    <div class="pt-6 border-t border-white/10 mt-6">
+                        <a href="apps/department_organizational_hierarchy_personnel_transfer_system.html" target="_blank" class="w-full py-3 px-5 rounded-xl bg-gradient-to-r from-purple-700 to-neon-purple text-white font-bold text-sm flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-neon-purple/25 transition-all">
+                            <span>打開 / 啟動人資系統 (Launch System)</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 卡片 5: 吳文瑜 個人數位設計作品集 -->
+                <div id="card-portfolio" class="project-card glass-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden group border border-white/10 hover:border-neon-pink/40" data-cat="app">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-pink-500/20 text-pink-300 border border-pink-500/30 flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-pink-400 animate-ping"></span>
+                                設計師品牌 · 響應式作品集
+                            </span>
+                            <span class="text-[11px] font-mono text-gray-400">WEB #05</span>
+                        </div>
+
+                        <h3 class="text-xl sm:text-2xl font-bold text-white group-hover:text-neon-pink transition-colors flex items-center gap-2">
+                            <span>💼 吳文瑜 個人數位設計作品集</span>
+                        </h3>
+
+                        <!-- 100字左右專案介紹 -->
+                        <div class="text-xs sm:text-sm text-gray-300 leading-relaxed font-light p-3.5 rounded-2xl bg-white/5 border border-white/5">
+                            <strong class="text-white block font-medium mb-1">專案核心介紹：</strong>
+                            本專案為數位設計師吳文瑜（Amanda Wu）的個人品牌入口網站。整體採用現代深色宇宙風格與動態霓虹光暈質感，具備極致滑順的全響應式行動體驗。網站完整匯聚了設計師 13 年跨足品牌 CIS 識別、UI/UX 產品原型、活動型行銷素材切版及大型企業官網的實戰歷練。頁尾整合 Google Apps Script 動態留言表單，實現跨網域將訪客諮詢直接無縫寫入後端 Google Sheet，展現兼具前端工程與視覺藝術的高成熟度落地能力。
+                        </div>
+
+                        <!-- 運用的 API 列表 -->
+                        <div class="space-y-2 pt-1">
+                            <span class="text-xs font-semibold text-neon-pink flex items-center gap-1.5">
+                                <i class="fa-solid fa-microchip"></i> 運用的 API 與核心技術：
+                            </span>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-pink-500/10 text-pink-300 border border-pink-500/20">Google Apps Script (GAS) Web App API</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-pink-500/10 text-pink-300 border border-pink-500/20">JSONP Cross-Domain Communication API</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-pink-500/10 text-pink-300 border border-pink-500/20">Google Spreadsheet Database API</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-pink-500/10 text-pink-300 border border-pink-500/20">Tailwind CSS Responsive Utilities</span>
+                            </div>
+                        </div>
+
+                        <!-- 應用場景 -->
+                        <div class="space-y-1.5 pt-1">
+                            <span class="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-briefcase text-neon-pink"></i> 應用場景 (Use Cases)：
+                            </span>
+                            <p class="text-xs text-gray-400 leading-normal">
+                                設計總監與產品經理人才招募評選、高客製化 Web 專案委託接案、企業品牌 CIS 視覺改版諮詢、新創團隊 UI/UX 顧問合作。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 啟動按鈕 -->
+                    <div class="pt-6 border-t border-white/10 mt-6">
+                        <a href="about/index.html" target="_blank" class="w-full py-3 px-5 rounded-xl bg-gradient-to-r from-neon-purple to-neon-pink text-white font-bold text-sm flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-neon-pink/25 transition-all">
+                            <span>打開 / 檢視作品集網站 (Open Portfolio)</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 卡片 6: 巷仔內文具行智慧營銷系統 -->
+                <div id="card-notion" class="project-card glass-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden group border border-white/10 hover:border-cyan-400/40" data-cat="design">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+                                零售管理 · Notion 系統架構
+                            </span>
+                            <span class="text-[11px] font-mono text-gray-400">DESIGN #06</span>
+                        </div>
+
+                        <h3 class="text-xl sm:text-2xl font-bold text-white group-hover:text-neon-cyan transition-colors flex items-center gap-2">
+                            <span>🏪 巷仔內文具行智慧營銷管理系統</span>
+                        </h3>
+
+                        <!-- 縮圖預覽 -->
+                        <div class="relative overflow-hidden aspect-video rounded-2xl bg-space-950/70 border border-white/10 flex items-center justify-center cursor-pointer image-preview-trigger" data-img="assets/Sationary store notion application.png">
+                            <img src="assets/Sationary%20store%20notion%20application.png" alt="Stationary Store Notion Application" class="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300">
+                            <span class="absolute bottom-2 right-2 text-[10px] bg-space-950/80 px-2 py-0.5 rounded text-gray-300 border border-white/10">點擊放大預覽</span>
+                        </div>
+
+                        <!-- 100字左右專案介紹 -->
+                        <div class="text-xs sm:text-sm text-gray-300 leading-relaxed font-light p-3.5 rounded-2xl bg-white/5 border border-white/5">
+                            <strong class="text-white block font-medium mb-1">專案核心介紹：</strong>
+                            以敏捷思維打造的實體文具零售店數位營運中樞。本系統將傳統分散的手工記帳與進銷存作業全面數位化，整合了商品條碼庫存盤點、供應商採購履歷、會員點數回饋機制及每日門市 POS 營業額對帳體系。透過 Notion 關聯資料庫的雙向勾稽與 Rollup 自動加總運算，經營者只需在手機端即可實時掌握熱銷排行、庫存警戒警報與毛利結構，為微型實體零售業提供了極致輕量卻強大無比的數位轉型解方。
+                        </div>
+
+                        <!-- 運用的 API 列表 -->
+                        <div class="space-y-2 pt-1">
+                            <span class="text-xs font-semibold text-neon-cyan flex items-center gap-1.5">
+                                <i class="fa-solid fa-microchip"></i> 運用的 API 與核心技術：
+                            </span>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">Notion Relational Database API</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">Automated Rollup & Formula Engine</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">Inventory Threshold Webhook Alert</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">Mobile Responsive Notion Layout</span>
+                            </div>
+                        </div>
+
+                        <!-- 應用場景 -->
+                        <div class="space-y-1.5 pt-1">
+                            <span class="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-store text-cyan-400"></i> 應用場景 (Use Cases)：
+                            </span>
+                            <p class="text-xs text-gray-400 leading-normal">
+                                獨立實體小店進銷存管理、微型電商多通路出貨盤點、門市店長每日現金對帳、跨檔期促銷活動利潤率試算。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 啟動按鈕 -->
+                    <div class="pt-6 border-t border-white/10 mt-6">
+                        <a href="assets/Sationary%20store%20notion%20application.png" target="_blank" class="w-full py-3 px-5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-500 text-space-950 font-bold text-sm flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-cyan-400/25 transition-all">
+                            <span>打開 / 檢視系統設計藍圖 (Open Notion Blueprint)</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 卡片 7: YongGO 幼犬問卷洞察資訊圖 -->
+                <div id="card-yonggo" class="project-card glass-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden group border border-white/10 hover:border-rose-400/40" data-cat="design">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/30 flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping"></span>
+                                資訊視覺化 · UX 研究
+                            </span>
+                            <span class="text-[11px] font-mono text-gray-400">DESIGN #07</span>
+                        </div>
+
+                        <h3 class="text-xl sm:text-2xl font-bold text-white group-hover:text-rose-400 transition-colors flex items-center gap-2">
+                            <span>🐶 YongGO 幼犬問卷洞察資訊圖</span>
+                        </h3>
+
+                        <!-- 縮圖預覽 -->
+                        <div class="relative overflow-hidden aspect-video rounded-2xl bg-space-950/70 border border-white/10 flex items-center justify-center cursor-pointer image-preview-trigger" data-img="assets/YongGo project Inforgraphic.png">
+                            <img src="assets/YongGo%20project%20Inforgraphic.png" alt="YongGo Project Infographic" class="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300">
+                            <span class="absolute bottom-2 right-2 text-[10px] bg-space-950/80 px-2 py-0.5 rounded text-gray-300 border border-white/10">點擊放大預覽</span>
+                        </div>
+
+                        <!-- 100字左右專案介紹 -->
+                        <div class="text-xs sm:text-sm text-gray-300 leading-relaxed font-light p-3.5 rounded-2xl bg-white/5 border border-white/5">
+                            <strong class="text-white block font-medium mb-1">專案核心介紹：</strong>
+                            這是一份針對台灣幼犬飼主行為模式與關鍵痛點進行深度調研後的資訊圖表（Infographic）成果展示。專案從問卷結構設計、樣本數據交叉比對出發，將繁複的統計圖表轉化為親切高吸睛的視覺敘事。內容精準描繪新手飼主在日常飲食挑選、幼犬行為訓練、預防醫學認知及照護焦慮等層面的核心需求，為寵物新創品牌的產品研發定位、會員經營行銷策略及教育宣導內容提供了具備堅實數據支撐的指引。
+                        </div>
+
+                        <!-- 運用的 API 列表 -->
+                        <div class="space-y-2 pt-1">
+                            <span class="text-xs font-semibold text-rose-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-microchip"></i> 運用的 API 與核心技術：
+                            </span>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-300 border border-rose-500/20">Survey Data Cross-Aggregation Schema</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-300 border border-rose-500/20">Vector SVG & Infographic Hierarchy</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-300 border border-rose-500/20">Color Contrast & Accessibility Guideline</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-300 border border-rose-500/20">High-Resolution Canvas Export</span>
+                            </div>
+                        </div>
+
+                        <!-- 應用場景 -->
+                        <div class="space-y-1.5 pt-1">
+                            <span class="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-paw text-rose-400"></i> 應用場景 (Use Cases)：
+                            </span>
+                            <p class="text-xs text-gray-400 leading-normal">
+                                寵物新創商業企劃書 Pitch Deck 數據支撐、幼犬飼料保健品電商社群內容行銷、獸醫照護衛教手冊宣導。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 啟動按鈕 -->
+                    <div class="pt-6 border-t border-white/10 mt-6">
+                        <a href="assets/YongGo%20project%20Inforgraphic.png" target="_blank" class="w-full py-3 px-5 rounded-xl bg-gradient-to-r from-rose-600 to-pink-500 text-white font-bold text-sm flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-rose-400/25 transition-all">
+                            <span>打開 / 檢視完整資訊圖 (Open Infographic)</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 卡片 8: 網站整體資訊架構規劃圖 -->
+                <div id="card-ia" class="project-card glass-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden group border border-white/10 hover:border-indigo-400/40" data-cat="design">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-ping"></span>
+                                UI/UX 原型 · 系統藍圖
+                            </span>
+                            <span class="text-[11px] font-mono text-gray-400">DESIGN #08</span>
+                        </div>
+
+                        <h3 class="text-xl sm:text-2xl font-bold text-white group-hover:text-indigo-400 transition-colors flex items-center gap-2">
+                            <span>📐 網站整體資訊架構規劃圖</span>
+                        </h3>
+
+                        <!-- 縮圖預覽 -->
+                        <div class="relative overflow-hidden aspect-video rounded-2xl bg-space-950/70 border border-white/10 flex items-center justify-center cursor-pointer image-preview-trigger" data-img="assets/website-infographic.png">
+                            <img src="assets/website-infographic.png" alt="Website Infographic Blueprint" class="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300">
+                            <span class="absolute bottom-2 right-2 text-[10px] bg-space-950/80 px-2 py-0.5 rounded text-gray-300 border border-white/10">點擊放大預覽</span>
+                        </div>
+
+                        <!-- 100字左右專案介紹 -->
+                        <div class="text-xs sm:text-sm text-gray-300 leading-relaxed font-light p-3.5 rounded-2xl bg-white/5 border border-white/5">
+                            <strong class="text-white block font-medium mb-1">專案核心介紹：</strong>
+                            本作品為大型數位平台前端開發前的資訊架構（IA）與線框規格（Wireframe）全局規劃藍圖。透過樹狀節點與關聯路徑，清晰定義站點導航層級、頁面內容組件模組、跨裝置斷點適配規則以及關鍵轉換漏斗的 User Flow。本藍圖在專案初期作為跨部門跨職能協作的共通語言，有效降低工程切版與介面設計間的溝通成本，確保上線後的產品兼具高度直覺的易用性與清晰的工程可擴展性。
+                        </div>
+
+                        <!-- 運用的 API 列表 -->
+                        <div class="space-y-2 pt-1">
+                            <span class="text-xs font-semibold text-indigo-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-microchip"></i> 運用的 API 與核心技術：
+                            </span>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">Information Architecture Tree Mapping</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">Responsive Breakpoints Design System</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">User Flow State Transition Spec</span>
+                                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">Wireframe Layout Component Schema</span>
+                            </div>
+                        </div>
+
+                        <!-- 應用場景 -->
+                        <div class="space-y-1.5 pt-1">
+                            <span class="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-compass-drafting text-indigo-400"></i> 應用場景 (Use Cases)：
+                            </span>
+                            <p class="text-xs text-gray-400 leading-normal">
+                                專案啟動前期業主需求對齊 (Requirement Alignment)、前端工程師切版規格依據、產品經理衝刺規劃 (Sprint Planning)。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 啟動按鈕 -->
+                    <div class="pt-6 border-t border-white/10 mt-6">
+                        <a href="assets/website-infographic.png" target="_blank" class="w-full py-3 px-5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-500 text-white font-bold text-sm flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-indigo-400/25 transition-all">
+                            <span>打開 / 檢視完整架構圖 (Open Architecture)</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 關於我區塊 About Me Section (Mobile-First Layout) -->
+        <section id="about" class="scroll-mt-24">
+            <div class="glass-card rounded-3xl p-6 sm:p-10 md:p-12 relative overflow-hidden">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+                    
+                    <!-- 個人照片 (Mobile Centered) -->
+                    <div class="md:col-span-5 flex justify-center">
+                        <div class="relative group max-w-[280px] sm:max-w-xs w-full">
+                            <div class="absolute -inset-1.5 bg-gradient-to-r from-neon-cyan via-neon-purple to-neon-pink rounded-3xl blur-md opacity-75 group-hover:opacity-100 transition duration-500"></div>
+                            <img src="assets/selfie.png" alt="Amanda Wu 吳文瑜" class="relative rounded-2xl w-full object-cover shadow-2xl bg-space-900 border border-white/10">
+                            
+                            <!-- 經驗徽章浮動標籤 -->
+                            <div class="absolute -bottom-3 -right-3 bg-space-950/90 border border-neon-cyan/40 px-3.5 py-1.5 rounded-full text-xs font-bold text-neon-cyan shadow-lg flex items-center gap-1.5 backdrop-blur-md">
+                                <i class="fa-solid fa-certificate text-neon-cyan"></i> 13+ Years Experience
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 經歷與個人特點 -->
+                    <div class="md:col-span-7 space-y-5 text-left">
+                        <div>
+                            <span class="text-xs uppercase tracking-widest text-neon-pink font-bold block mb-1">
+                                <i class="fa-solid fa-sparkles mr-1"></i> Digital Designer & Developer
+                            </span>
+                            <h2 class="text-2xl sm:text-4xl font-extrabold text-white">
+                                吳文瑜 <span class="text-lg sm:text-2xl text-gray-400 font-normal">Amanda Wu</span>
+                            </h2>
+                        </div>
+
+                        <p class="text-sm sm:text-base text-gray-300 leading-relaxed font-light">
+                            擁有超過 <span class="text-white font-semibold">13 年資歷</span>的數位設計與網頁開發專家。擅長從品牌 CIS 識別規劃、資訊架構 (IA)、UI/UX 原型到前端客製化切版與 AI 工具整合應用。
+                        </p>
+
+                        <p class="text-xs sm:text-sm text-gray-400 leading-relaxed font-light">
+                            曾主導並參與包括 <span class="text-neon-cyan font-medium">國泰雲門隨行吧、膳魔師會員平台、泰安產險智慧投保、台灣菸酒、味全</span> 及電商購物促銷專案，以使用者為核心打造高轉換率與美感兼具的數位體驗。
+                        </p>
+
+                        <!-- 核心技能矩陣 -->
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1">
+                            <div class="p-3 rounded-xl bg-white/5 border border-white/10 text-left">
+                                <span class="text-[11px] text-neon-cyan block font-medium">UI / UX</span>
+                                <span class="text-xs text-white">Figma & Prototype</span>
+                            </div>
+                            <div class="p-3 rounded-xl bg-white/5 border border-white/10 text-left">
+                                <span class="text-[11px] text-neon-purple block font-medium">Web Front-End</span>
+                                <span class="text-xs text-white">HTML5 / Tailwind</span>
+                            </div>
+                            <div class="p-3 rounded-xl bg-white/5 border border-white/10 text-left">
+                                <span class="text-[11px] text-neon-pink block font-medium">Automation</span>
+                                <span class="text-xs text-white">Google Apps Script</span>
+                            </div>
+                        </div>
+
+                        <!-- 行動按鈕 -->
+                        <div class="pt-3 flex flex-wrap gap-3">
+                            <a href="about/index.html" class="px-6 py-3 rounded-xl bg-gradient-to-r from-neon-purple to-neon-pink text-white text-xs sm:text-sm font-semibold hover:scale-105 transition-all flex items-center gap-2">
+                                <span>閱讀完整履歷介紹 (Full Resume)</span>
+                                <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </a>
+                            <a href="about/index.html#contact" class="px-6 py-3 rounded-xl border border-white/20 text-white text-xs sm:text-sm font-medium hover:bg-white/10 transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-paper-plane text-neon-cyan text-xs"></i>
+                                <span>預約諮詢合作</span>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 圖片點擊放大預覽 Modal (Mobile Pinch/Tap Friendly) -->
+    <div id="image-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <button id="modal-close" class="absolute top-5 right-5 w-11 h-11 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center text-lg z-10" aria-label="Close Preview">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="max-w-4xl max-h-[85vh] w-full flex items-center justify-center">
+            <img id="modal-image" src="" alt="Enlarged Preview" class="max-w-full max-h-[80vh] object-contain rounded-xl shadow-2xl">
+        </div>
+    </div>
+
+    <!-- 行動裝置底端常駐導覽列 Mobile Bottom Navigation Bar (Thumb Friendly) -->
+    <div class="fixed bottom-0 left-0 w-full z-40 md:hidden bg-space-950/90 border-t border-white/10 backdrop-blur-xl px-4 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+        <div class="flex items-center justify-around text-center">
+            <a href="#hero" class="flex flex-col items-center py-1 text-gray-400 hover:text-neon-cyan transition-colors">
+                <i class="fa-solid fa-house text-sm"></i>
+                <span class="text-[10px] mt-1">首頁</span>
+            </a>
+            <a href="#catalog" class="flex flex-col items-center py-1 text-gray-400 hover:text-neon-cyan transition-colors">
+                <i class="fa-solid fa-sitemap text-sm"></i>
+                <span class="text-[10px] mt-1">目錄</span>
+            </a>
+            <a href="#projects" class="flex flex-col items-center py-1 text-gray-400 hover:text-neon-cyan transition-colors">
+                <i class="fa-solid fa-layer-group text-sm"></i>
+                <span class="text-[10px] mt-1">專案</span>
+            </a>
+            <a href="#about" class="flex flex-col items-center py-1 text-gray-400 hover:text-neon-cyan transition-colors">
+                <i class="fa-solid fa-user text-sm"></i>
+                <span class="text-[10px] mt-1">關於</span>
+            </a>
+            <button id="mobile-bottom-audio-btn" class="flex flex-col items-center py-1 text-gray-400 hover:text-neon-cyan transition-colors" aria-label="Toggle Audio">
+                <i id="mobile-audio-icon" class="fa-solid fa-play text-sm"></i>
+                <span class="text-[10px] mt-1">音樂</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 隱藏音頻標籤 -->
+    <audio id="bg-audio" preload="metadata" loop>
+        <source src="music/intro.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- 頁尾 Footer (Desktop & Mobile) -->
+    <footer class="border-t border-white/10 bg-space-950/90 relative z-10 py-10 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-400">
+            <div class="flex items-center gap-2">
+                <span class="font-extrabold text-white tracking-wider">My Web Portfolio</span>
+                <span>© 2026 Amanda Wu. All rights reserved.</span>
+            </div>
+            <div class="flex items-center gap-5">
+                <a href="#catalog" class="hover:text-neon-cyan transition-colors">專案目錄</a>
+                <a href="#projects" class="hover:text-neon-blue transition-colors">專案卡片</a>
+                <a href="#about" class="hover:text-neon-pink transition-colors">關於作者</a>
+                <a href="about/index.html#contact" class="hover:text-neon-cyan transition-colors">合作洽詢</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 行動端與互動腳本 -->
+    <script>
+        // 1. 音樂播放器控制 (支援頂端與底端按鈕同步)
+        const audio = document.getElementById('bg-audio');
+        const navAudioBtn = document.getElementById('nav-audio-btn');
+        const navAudioIcon = document.getElementById('nav-audio-icon');
+        const mobileBottomAudioBtn = document.getElementById('mobile-bottom-audio-btn');
+        const mobileAudioIcon = document.getElementById('mobile-audio-icon');
+        let isAudioPlaying = false;
+
+        function toggleAudio() {
+            if (!audio) return;
+            if (isAudioPlaying) {
+                audio.pause();
+                isAudioPlaying = false;
+                if (navAudioIcon) navAudioIcon.className = 'fa-solid fa-music text-xs';
+                if (mobileAudioIcon) mobileAudioIcon.className = 'fa-solid fa-play text-sm';
+            } else {
+                audio.play().then(() => {
+                    isAudioPlaying = true;
+                    if (navAudioIcon) navAudioIcon.className = 'fa-solid fa-pause text-xs text-neon-cyan';
+                    if (mobileAudioIcon) mobileAudioIcon.className = 'fa-solid fa-pause text-sm text-neon-cyan';
+                }).catch(err => {
+                    console.warn('Playback prevented:', err);
+                });
+            }
+        }
+
+        if (navAudioBtn) navAudioBtn.addEventListener('click', toggleAudio);
+        if (mobileBottomAudioBtn) mobileBottomAudioBtn.addEventListener('click', toggleAudio);
+
+        // 2. 目錄篩選邏輯 (Category Filter)
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const catalogItems = document.querySelectorAll('.catalog-item');
+        const projectCards = document.querySelectorAll('.project-card');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => {
+                    b.classList.remove('active', 'bg-neon-cyan', 'text-space-950', 'shadow-md');
+                    b.classList.add('bg-white/5', 'text-gray-300', 'border', 'border-white/10');
+                });
+                btn.classList.add('active', 'bg-neon-cyan', 'text-space-950', 'shadow-md');
+                btn.classList.remove('bg-white/5', 'text-gray-300', 'border-white/10');
+
+                const category = btn.getAttribute('data-category');
+                
+                // 篩選目錄項
+                catalogItems.forEach(item => {
+                    const cat = item.getAttribute('data-cat');
+                    if (category === 'all' || cat === category) {
+                        item.classList.remove('hidden');
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+
+                // 篩選詳細卡片
+                projectCards.forEach(card => {
+                    const cat = card.getAttribute('data-cat');
+                    if (category === 'all' || cat === category) {
+                        card.classList.remove('hidden');
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+            });
+        });
+
+        // 3. 即時關鍵字搜尋 (Live Search)
+        const searchInput = document.getElementById('catalog-search');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                
+                catalogItems.forEach(item => {
+                    const text = item.innerText.toLowerCase();
+                    if (!query || text.includes(query)) {
+                        item.classList.remove('hidden');
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+
+                projectCards.forEach(card => {
+                    const text = card.innerText.toLowerCase();
+                    if (!query || text.includes(query)) {
+                        card.classList.remove('hidden');
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+            });
+        }
+
+        // 4. 圖片點擊放大預覽 Modal
+        const imageTriggers = document.querySelectorAll('.image-preview-trigger');
+        const modal = document.getElementById('image-modal');
+        const modalImage = document.getElementById('modal-image');
+        const modalClose = document.getElementById('modal-close');
+
+        imageTriggers.forEach(trigger => {
+            trigger.addEventListener('click', () => {
+                const src = trigger.getAttribute('data-img');
+                if (modal && modalImage && src) {
+                    modalImage.src = src;
+                    modal.classList.add('modal-active');
+                }
+            });
+        });
+
+        if (modalClose && modal) {
+            modalClose.addEventListener('click', () => {
+                modal.classList.remove('modal-active');
+            });
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('modal-active');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>森語塔羅・心靈占卜</title>
+<style>
+:root{--bg1:#0f2419;--bg2:#1d3b2b;--tx:#e8f0e2;--mut:#a9bfa8;--gold:#cfd98a;--glass:rgba(255,255,255,.07);--bd:rgba(207,217,138,.25);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#0b1c13}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;color:var(--tx);font-family:"Noto Serif TC","PingFang TC","Microsoft JhengHei",serif;background:radial-gradient(ellipse at top,var(--bg2),var(--bg1) 70%) fixed;line-height:1.8}
+.star{position:fixed;width:2px;height:2px;background:var(--gold);border-radius:50%;animation:tw 3s infinite alternate;pointer-events:none}
+@keyframes tw{from{opacity:.1}to{opacity:.9}}
+main{max-width:960px;margin:0 auto;padding:20px 16px 60px;position:relative}
+h1{text-align:center;font-weight:500;letter-spacing:.3em;color:var(--gold);margin:12px 0 0}
+.sub{text-align:center;color:var(--mut);margin:0 0 20px}
+.glass{background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--bd);border-radius:18px;padding:18px;margin:14px 0}
+input[type=text]{width:100%;padding:12px;border-radius:12px;border:1px solid var(--bd);background:rgba(0,0,0,.25);color:var(--tx);font:inherit}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+button{font:inherit;color:var(--tx);background:rgba(207,217,138,.12);border:1px solid var(--bd);border-radius:12px;padding:10px 16px;cursor:pointer;transition:.2s}
+button:hover,button.on{background:rgba(207,217,138,.3);color:#fff}
+.go{background:linear-gradient(135deg,#6f9a74,#a7b86a);color:#10231a;font-weight:700}
+.sp{flex:1;min-width:140px;text-align:center}.sp small{display:block;color:var(--mut)}
+.deck{height:150px;position:relative;margin:10px auto;width:100px}
+.deck i{position:absolute;inset:0;border-radius:10px;border:1px solid var(--gold);background:repeating-linear-gradient(45deg,#2f5a41,#2f5a41 6px,#264b36 6px,#264b36 12px)}
+.deck.sh i{animation:sh .5s ease-in-out 4}
+.deck i:nth-child(odd){--d:-60px}.deck i:nth-child(even){--d:60px}
+@keyframes sh{50%{transform:translateX(var(--d)) rotate(calc(var(--d)/6))}}
+.table{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.slot{text-align:center;width:140px}
+.slot b{display:block;color:var(--gold);font-weight:500;margin-bottom:6px}
+.card{width:140px;height:230px;perspective:900px;cursor:pointer}
+.in{position:relative;width:100%;height:100%;transition:transform .9s;transform-style:preserve-3d}
+.card.f .in{transform:rotateY(180deg)}
+.face,.back{position:absolute;inset:0;border-radius:12px;border:1px solid var(--gold);backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.back{background:repeating-linear-gradient(45deg,#2f5a41,#2f5a41 6px,#264b36 6px,#264b36 12px);font-size:34px;color:var(--gold)}
+.face{transform:rotateY(180deg);background:linear-gradient(160deg,#e9f0d6,#b9cfa6);color:#1b3326}
+.face .n{font-size:13px;opacity:.7}.face .s{font-size:44px}.face .t{font-size:19px;font-weight:700}
+.rv .face .s{transform:rotate(180deg)}
+.tag{font-size:12px;margin-top:4px;padding:1px 10px;border-radius:99px;background:rgba(27,51,38,.15)}
+.read h3{color:var(--gold);margin:14px 0 2px;font-weight:500}.read p{margin:4px 0;color:#dfe9d8}
+.hist{display:flex;justify-content:space-between;gap:8px;align-items:center;border-bottom:1px solid var(--bd);padding:8px 0;flex-wrap:wrap}
+.hid{display:none}
+</style></head><body>
+<main>
+<h1>森語塔羅</h1><p class="sub">深呼吸，靜下心，讓牌為你說話</p>
+<div class="glass"><label>心中的提問（可留白）</label><input id="q" type="text" maxlength="60" placeholder="例如：我該如何面對目前的工作選擇？">
+<p style="margin:12px 0 6px">選擇牌陣</p><div class="row" id="sps"></div>
+<div class="deck" id="deck"><i></i><i></i><i></i><i></i><i></i></div>
+<div class="row" style="justify-content:center"><button class="go" id="start">洗牌並開始</button></div></div>
+<div id="stage" class="glass hid"><p id="hint" style="text-align:center;color:var(--mut);margin-top:0"></p><div class="table" id="tb"></div></div>
+<div id="out" class="glass read hid"></div>
+<div class="glass"><div class="hist"><b style="color:var(--gold)">占卜歷史紀錄</b><button id="clr">清空全部</button></div><div id="hl"></div></div>
+<p class="sub" style="font-size:13px">塔羅為自我探索的參考，並非命運定論，重要決定請結合現實判斷。</p>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const MJ="愚者|新的開始、自由冒險、信任直覺|魯莽、猶豫不決、忽視風險;魔術師|創造力、行動力、善用資源|操控、能量分散、缺乏自信;女祭司|直覺、內在智慧、靜心傾聽|壓抑直覺、隱瞞、流於表面;皇后|豐盛、滋養、感官之美|過度依賴、創造停滯、忽略自我照顧;皇帝|穩定、秩序、承擔領導|專制、僵化、缺乏界線;教皇|傳統智慧、導師、信念|墨守成規、盲從、需打破常規;戀人|愛與連結、價值抉擇、和諧|失衡、猶疑、價值衝突;戰車|意志、前進、自律的勝利|失控、方向不明、衝動;力量|柔韌的勇氣、耐心、自我接納|自我懷疑、情緒失控、感到無力;隱者|內省、獨處、尋找答案|孤立、逃避、過度封閉;命運之輪|轉機、循環、順勢而為|阻滯、抗拒改變、時運低潮;正義|公平、因果、清晰判斷|偏頗、逃避責任、不公;倒吊人|換位思考、暫停、放下|拖延、無謂犧牲、固執;死神|結束與重生、轉化、放手|抗拒結束、停滯、執著過去;節制|平衡、調和、耐心整合|失衡、過度、缺乏節奏;惡魔|執著、誘惑、被束縛的模式|解脫、覺醒、擺脫枷鎖;高塔|突變、舊結構崩塌、覺醒|延遲的崩塌、抗拒改變、餘震;星星|希望、療癒、靈感|失望、缺乏信心、與內在斷連;月亮|不安、潛意識、迷霧|迷霧漸散、真相浮現、恐懼釋放;太陽|喜悅、成功、活力|短暫陰霾、過度樂觀、喜悅延遲;審判|覺醒、召喚、重新評估|自我批判、逃避召喚、悔恨;世界|圓滿、完成、整合|未竟之事、只差最後一步、停滯";
+const RK="王牌|新的起點與潛能|錯失時機、動力不足;二|抉擇、平衡與規劃|猶豫不決、失衡;三|成長、合作與初步成果|進展受阻、缺乏協調;四|穩定、休憩與根基|停滯、不安於現狀;五|衝突、競爭與挑戰|衝突緩和、身心疲憊;六|進展、流動與支持|停滯、抗拒轉變;七|堅持、評估與防衛|動搖、缺乏耐心;八|行動、精進與變動|分心、倉促行事;九|接近完成與累積|過度憂慮、能量透支;十|圓滿的頂點或沉重的負擔|負擔過重、收尾延遲;侍者|好奇、學習與新訊息|不成熟、消息延遲;騎士|行動、追求與推進|衝動、進展停滯;王后|內在成熟、滋養與洞察|情緒化、過度付出;國王|掌握、領導與責任|濫用權力、失去掌控";
+const SU=[["權杖","火","熱情與行動","🜂"],["聖杯","水","情感與關係","🜄"],["寶劍","風","思維與溝通","🜁"],["錢幣","土","物質與工作","🜃"]];
+const D=[];
+MJ.split(";").forEach((s,i)=>{const[a,b,c]=s.split("|");D.push({n:a,u:b,r:c,m:1,no:i,sym:"✦",el:"靈性"})});
+SU.forEach(s=>RK.split(";").forEach((r,i)=>{const[a,b,c]=r.split("|");D.push({n:s[0]+(i<1?"":"")+a,u:`${s[2]}面向：${b}`,r:`${s[2]}面向：${c}`,m:0,no:i+1,sym:s[3],el:s[1]})}));
+const SP={one:{t:"單張啟示",d:"給當下的指引",p:["今日啟示"]},ppf:{t:"過去・現在・未來",d:"事件的時間脈絡",p:["過去","現在","未來"]},mbs:{t:"身・心・靈三角",d:"全人狀態的檢視",p:["身體","心智","靈性"]}};
+const AD={"過去":"回顧它如何塑造了你，帶著理解而非責備","現在":"此刻最需要你誠實覺察與採取的小行動","未來":"若維持目前方向，可預見的趨勢，你仍握有調整的力量","今日啟示":"今天不妨依此牌的提醒，放慢腳步做一件溫柔的小事","身體":"留意作息、飲食與身體傳來的訊號","心智":"整理想法與信念，看看哪些念頭已不再適合你","靈性":"安靜獨處、書寫或冥想，聆聽內在的聲音"};
+let sp="ppf",pick=[],H=JSON.parse(localStorage.getItem("tarot_h")||"[]");
+try{}catch(e){}
+const sv=()=>{try{localStorage.setItem("tarot_h",JSON.stringify(H))}catch(e){}};
+for(let i=0;i<60;i++){const s=document.createElement("div");s.className="star";s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*3}s`;document.body.appendChild(s)}
+$("sps").innerHTML=Object.entries(SP).map(([k,v])=>`<button class="sp ${k==sp?"on":""}" data-k="${k}">${v.t}<small>${v.d}</small></button>`).join("");
+$("sps").onclick=e=>{const b=e.target.closest(".sp");if(!b)return;sp=b.dataset.k;document.querySelectorAll(".sp").forEach(x=>x.classList.toggle("on",x==b))};
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+$("start").onclick=()=>{const k=$("deck");k.classList.add("sh");$("start").disabled=true;$("out").classList.add("hid");
+setTimeout(()=>{k.classList.remove("sh");$("start").disabled=false;$("start").textContent="重新洗牌";deal()},2100)};
+function deal(){const P=SP[sp].p;pick=shuffle(D).slice(0,P.length).map(c=>({c,rv:Math.random()<.35,f:0}));
+$("stage").classList.remove("hid");$("hint").textContent="請依序點擊牌背，翻開命運的訊息";
+$("tb").innerHTML=pick.map((x,i)=>`<div class="slot"><b>${P[i]}</b><div class="card ${x.rv?"rv":""}" data-i="${i}"><div class="in"><div class="back">✧</div><div class="face"><div class="n">${x.c.m?(x.c.no+" ・ 大阿爾克那"):"小阿爾克那"}</div><div class="s">${x.c.sym}</div><div class="t">${x.c.n}</div><div class="tag">${x.rv?"逆位":"正位"}</div></div></div></div></div>`).join("");
+$("stage").scrollIntoView({behavior:"smooth"})}
+$("tb").onclick=e=>{const c=e.target.closest(".card");if(!c)return;const i=+c.dataset.i;if(pick[i].f)return;pick[i].f=1;c.classList.add("f");
+if(pick.every(x=>x.f))setTimeout(read,1100)};
+function build(q,key,cards){const P=SP[key].p;let h=`<h2 style="color:var(--gold);font-weight:500;margin-top:0">${SP[key].t}・牌陣解讀</h2><p>${q?"你的提問：「"+q+"」":"本次為自由探問，不設特定主題。"}</p>`;
+cards.forEach((x,i)=>{const c=x.c,m=x.rv?c.r:c.u;h+=`<h3>${P[i]}｜${c.n}（${x.rv?"逆位":"正位"}）</h3><p>牌義：${m}。</p><p>${x.rv?"逆位提醒你這股能量正被阻擋、內化或過度表現，是向內檢視的邀請。":"正位顯示這股能量正自然流動，可以放心運用。"}${AD[P[i]]}。</p>`});
+const rc=cards.filter(x=>x.rv).length,mc=cards.filter(x=>x.c.m).length,els={};cards.forEach(x=>{if(!x.c.m)els[x.c.el]=(els[x.c.el]||0)+1});
+const top=Object.entries(els).sort((a,b)=>b[1]-a[1])[0];
+h+=`<h3>牌陣整體訊息</h3><p>${mc>=cards.length/2?"大阿爾克那佔多數，代表此事關乎人生課題與重要轉折，值得鄭重看待。":"小阿爾克那較多，顯示重點在日常的選擇與具體行動，一步步調整便能見效。"}${rc==0?"所有牌皆為正位，整體能量順暢，適合積極前行。":rc==cards.length?"所有牌皆為逆位，提醒你先停下來整理內心，再行動。":`其中 ${rc} 張逆位，指出需要留意與調整之處。`}${top?`牌陣中「${top[0]}」元素較為突出，請多關注其所代表的領域。`:""}</p>`;
+if(cards.length>1)h+=`<p>${P[0]}的「${cards[0].c.n}」與${P[cards.length-1]}的「${cards[cards.length-1].c.n}」彼此呼應：${key=="ppf"?"從過去的經驗走向未來，關鍵在你現在的選擇。":"身心靈三者相互影響，讓最失衡的一環先被照顧，其他兩者自然跟著平衡。"}</p>`;
+h+=`<h3>行動指引</h3><p>1. 選一個牌中關鍵字，今天用一件小事實踐它。<br>2. 將此次感受寫下來，一週後回看。<br>3. 牌是鏡子，答案始終在你心裡。</p>`;return h}
+function read(){const q=$("q").value.trim();const h=build(q,sp,pick);const o=$("out");o.innerHTML=h+`<div class="row" style="margin-top:14px"><button id="cp">複製解牌內容</button></div>`;o.classList.remove("hid");
+H.unshift({id:Date.now(),q,sp,cards:pick.map(x=>({n:x.c.n,rv:x.rv,i:D.indexOf(x.c)}))});H=H.slice(0,50);sv();hist();
+$("cp").onclick=()=>cp(o.innerText.replace(/複製解牌內容/,""));o.scrollIntoView({behavior:"smooth"})}
+function cp(t){navigator.clipboard.writeText(t).then(()=>alert("已複製"),()=>{const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");alert("已複製")}catch(e){}a.remove()})}
+function hist(){$("hl").innerHTML=H.length?H.map(r=>`<div class="hist"><span>${new Date(r.id).toLocaleString("zh-TW")}｜${SP[r.sp].t}｜${r.cards.map(c=>c.n+(c.rv?"(逆)":"")).join("、")}${r.q?"<br><small>"+r.q.replace(/</g,"&lt;")+"</small>":""}</span><span class="row"><button data-v="${r.id}">查看</button><button data-c="${r.id}">複製</button><button data-d="${r.id}">刪除</button></span></div>`).join(""):'<p style="color:var(--mut)">尚無紀錄，完成一次占卜後會自動保存。</p>'}
+$("hl").onclick=e=>{const b=e.target.closest("button");if(!b)return;const id=+(b.dataset.v||b.dataset.c||b.dataset.d),r=H.find(x=>x.id==id);
+if(b.dataset.d){H=H.filter(x=>x.id!=id);sv();hist()}else{const t=build(r.q,r.sp,r.cards.map(c=>({c:D[c.i],rv:c.rv})));
+if(b.dataset.v){$("out").innerHTML=t;$("out").classList.remove("hid");$("out").scrollIntoView({behavior:"smooth"})}else{const d=document.createElement("div");d.innerHTML=t;cp(d.innerText)}}};
+$("clr").onclick=()=>{if(confirm("確定清空所有紀錄？")){H=[];sv();hist()}};
+hist();
+</script></body></html>

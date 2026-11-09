@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>鼎盛銷售經營診斷儀表板</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:#0B0F19;color:#E5E7EB;font-family:system-ui,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif}
+.g{background:rgba(31,41,55,.6);border:1px solid rgba(55,65,81,.5);border-radius:14px;backdrop-filter:blur(6px)}
+.kc{cursor:pointer;transition:all .2s}.kc:hover{transform:translateY(-4px);border-color:#3B82F6;box-shadow:0 0 18px rgba(59,130,246,.35)}
+.kc.on{border-color:#3B82F6;background:rgba(59,130,246,.16);box-shadow:0 0 22px rgba(59,130,246,.45)}
+select{background:#111827;border:1px solid #374151;border-radius:8px;padding:3px 6px;font-size:12px;max-width:100%;color:#E5E7EB}
+#panel{animation:f .3s}@keyframes f{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+.hd{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(11,15,25,.94);backdrop-filter:blur(8px);border-bottom:1px solid #1F2937}
+td,th{padding:4px 8px;font-size:12px;text-align:right}th:first-child,td:first-child{text-align:left}
+</style></head>
+<body>
+<div class="hd px-4 py-3">
+ <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+  <h1 class="text-lg font-bold">鼎盛銷售經營診斷儀表板 <span id="src" class="text-xs font-normal text-amber-400 ml-2"></span></h1>
+  <label id="drop" class="text-xs px-3 py-1.5 rounded-lg border border-dashed border-blue-500 text-blue-300 cursor-pointer">⬆ 拖曳或點選上傳 .xlsx / .csv<input id="file" type="file" accept=".xlsx,.xls,.csv" class="hidden"></label>
+ </div>
+ <div id="filters" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-12 gap-2 text-xs"></div>
+</div>
+<main class="p-4 max-w-[1500px] mx-auto">
+ <div id="cards" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-6 gap-3"></div>
+ <div id="panel" class="mt-4"></div>
+</main>
+<script>
+const $=s=>document.querySelector(s),sum=(a,f)=>a.reduce((s,x)=>s+(+f(x)||0),0),
+grp=(a,f)=>{const m=new Map();a.forEach(x=>{const k=f(x);(m.get(k)||m.set(k,[]).get(k)).push(x)});return m},
+n0=v=>Math.round(v).toLocaleString('zh-TW'),pc=v=>(v*100).toFixed(1)+'%',
+ab=v=>Math.abs(v)>=1e8?(v/1e8).toFixed(2)+' 億':Math.abs(v)>=1e4?(v/1e4).toFixed(0)+' 萬':n0(v),
+dv=(a,b)=>b?a/b:0;
+Chart.defaults.color='#9CA3AF';Chart.defaults.borderColor='rgba(75,85,99,.35)';Chart.defaults.maintainAspectRatio=false;
+const C={b:'#3B82F6',g:'#10B981',o:'#F59E0B',r:'#EF4444',p:'#A78BFA',c:'#22D3EE'},PAL=[C.b,C.g,C.o,C.r,C.p,C.c];
+let D=[],T=[],STD={},S={f:{},k:0},CH={};
+
+/* ---------- Mock data engine ---------- */
+function mock(){
+ let s=42;const R=()=>(s=(s*16807)%2147483647)/2147483647,pick=a=>a[Math.floor(R()*a.length)];
+ const P=[['雲端主機方案','雲端服務',12000,.35],['備份儲存方案','雲端服務',4500,.30],['資安監控雲','雲端服務',9000,.38],['系統導入顧問','顧問服務',30000,.60],['教育訓練','顧問服務',30000,.62],['流程優化顧問','顧問服務',45000,.58],
+  ['ERP 授權','軟體授權',60000,.25],['BI 授權','軟體授權',25000,.30],['資安授權','軟體授權',18000,.28],['伺服器','硬體設備',80000,.72],['網路設備','硬體設備',35000,.70],['工作站','硬體設備',50000,.74]]
+  .map((p,i)=>({id:'P'+String(i+1).padStart(3,'0'),name:p[0],line:p[1],list:p[2],scr:p[3]}));
+ P.forEach(p=>STD[p.id]=p.scr);
+ const regs=['北區','中區','南區','東區'],reps=Array.from({length:16},(_,i)=>({n:'業務'+String.fromCharCode(65+i),r:regs[Math.floor(i/4)]})),
+ inds=['科技業','製造業','教育','醫療照護','金融業','零售'],gr=['A 戰略','B 重點','C 一般'],
+ cs=Array.from({length:120},(_,i)=>({n:'客戶'+(i+1),g:i<12?gr[0]:i<48?gr[1]:gr[2],ind:pick(inds),reg:pick(regs)})),
+ tags=['運輸偏遠','外包成本超支','競品議價','專案急件','策略客戶特批'];
+ const yms=[];for(let y=2025;y<=2026;y++)for(let m=1;m<=(y==2026?6:12);m++)yms.push(y+'-'+String(m).padStart(2,'0'));
+ D=[];
+ for(let i=0;i<820;i++){
+  const ym=pick(yms),p=pick(P),rp=pick(reps),c=R()<.45?pick(cs.slice(0,12)):pick(cs),qty=1+Math.floor(R()*(p.list>30000?8:25)),
+  tg=R()<.18?pick(tags):'無',disc=Math.min(.35,R()*(c.g[0]=='A'?.3:.18)+(tg=='競品議價'?.12:0)),price=p.list*(1-disc),rev=price*qty,
+  dc=rev*(p.scr*(0.8+R()*.4))/(1-disc>0?1:1)*(1-disc)/(1-disc*.5),lc=rev*(.01+R()*.03)*(tg=='運輸偏遠'?4:1),sc=rev*(.01+R()*.04)*(c.g[0]=='C'&&R()<.3?3:1),
+  pcst=tg=='外包成本超支'?rev*(.15+R()*.2):tg=='專案急件'?rev*(.08+R()*.1):0,cost=dc+lc+sc+pcst,gp=rev-cost,
+  appr=(disc>.2&&R()<.25)?'未核准':'已核准',rt=R();
+  D.push({id:'SO'+i,ym,yr:+ym.slice(0,4),q:'Q'+Math.ceil(+ym.slice(5)/3),cust:c.n,grade:c.g,ind:c.ind,prod:p.name,pid:p.id,line:p.line,rep:rp.n,rreg:rp.r,
+   ch:pick(['直銷','經銷','線上詢價']),type:pick(['新客','續約','加購','續約']),qty,list:p.list,disc,rev,dc,lc,sc,pc:pcst,gp,appr,tag:tg,loss:gp<0,
+   pay:Math.floor(20+R()*80+(c.g[0]=='A'?20:0)),ret:rt<.82?'正常':rt<.93?'部分退貨':'已退貨'});
+ }
+ T=[];yms.forEach(ym=>reps.forEach(r=>{const a=sum(D.filter(d=>d.ym==ym&&d.rep==r.n),d=>d.rev);T.push({ym,yr:+ym.slice(0,4),q:'Q'+Math.ceil(+ym.slice(5)/3),rep:r.n,rreg:r.r,t:Math.round((a||4e5)*(0.85+R()*.4)/1e4)*1e4,nt:3})}));
+}
+/* ---------- File loader ---------- */
+const strip=o=>Object.fromEntries(Object.entries(o).map(([k,v])=>[k.replace(/\(NT\$\)/,'').trim(),v]));
+function load(buf,src){
+ const wb=XLSX.read(buf,{type:'array'}),nm=wb.SheetNames,rd=n=>XLSX.utils.sheet_to_json(wb.Sheets[n]).map(strip),
+ sd=nm.find(n=>/銷售|明細/.test(n))||nm[0],st=nm.find(n=>/目標/.test(n)),sp=nm.find(n=>/產品/.test(n));
+ const rows=rd(sd);if(!rows.length||rows[0]['營收']===undefined){alert('找不到「營收」欄位，請確認為銷售明細表');return}
+ D=rows.map(o=>({id:o['訂單ID'],ym:String(o['年月']),yr:+o['年'],q:o['季'],cust:o['客戶名稱'],grade:o['客戶等級'],ind:o['客戶產業'],prod:o['產品名稱'],pid:o['產品ID'],line:o['產品線'],rep:o['業務員'],rreg:o['業務負責區域'],ch:o['銷售通路'],type:o['訂單類型'],qty:+o['數量'],list:+o['牌價單價'],disc:+o['折扣率'],rev:+o['營收'],dc:+o['直接成本'],lc:+o['物流成本'],sc:+o['售後服務成本'],pc:+o['專案額外成本'],gp:+o['毛利'],appr:o['折扣核准'],tag:o['異常原因標籤']||'無',loss:o['是否虧損']==='是',pay:+o['付款天數'],ret:o['退貨狀態']}));
+ STD={};if(sp)rd(sp).forEach(p=>STD[p['產品ID']]=+p['標準成本率']);
+ T=st?rd(st).map(o=>({ym:String(o['年月']),yr:+o['年'],q:o['季'],rep:o['業務員'],rreg:o['業務負責區域'],t:+o['營收目標'],nt:+o['新客目標(筆)']||0})):[];
+ $('#src').textContent='資料來源：'+src+'（'+D.length+' 筆）';S.f={};init();
+}
+async function onFile(f){if(f){const b=await f.arrayBuffer();load(new Uint8Array(b),f.name)}}
+$('#file').onchange=e=>onFile(e.target.files[0]);
+['dragover','drop'].forEach(ev=>document.body.addEventListener(ev,e=>{e.preventDefault();if(ev=='drop')onFile(e.dataTransfer.files[0])}));
+
+/* ---------- Filters ---------- */
+const FS=[['yr','年度',r=>r.yr],['q','季度',r=>r.q],['rreg','負責區域',r=>r.rreg],['rep','業務員',r=>r.rep],['grade','客戶等級',r=>r.grade],['ind','客戶產業',r=>r.ind],['line','產品線',r=>r.line],['ch','銷售通路',r=>r.ch],['type','訂單類型',r=>r.type],['tag','異常標籤',r=>r.tag],['risk','風險過濾',null]];
+function init(){
+ const el=$('#filters');el.innerHTML='';
+ FS.forEach(([k,l,g])=>{const w=document.createElement('div');w.innerHTML=`<div class="text-gray-400 mb-0.5">${l}</div><select id="f_${k}"></select>`;el.append(w);
+  w.querySelector('select').onchange=e=>{S.f[k]=e.target.value;if(k=='rreg'){S.f.rep='';fill('rep')}render()}});
+ const w=document.createElement('div');w.innerHTML='<div class="text-gray-400 mb-0.5">月份起</div><select id="f_m1"></select>';el.append(w);
+ const w2=document.createElement('div');w2.innerHTML='<div class="text-gray-400 mb-0.5">月份迄</div><select id="f_m2"></select>';el.append(w2);
+ const ms=[...new Set(D.map(r=>r.ym))].sort();
+ ['m1','m2'].forEach((k,i)=>{const s=$('#f_'+k);s.innerHTML='<option value="">不限</option>'+ms.map(m=>`<option>${m}</option>`).join('');s.onchange=e=>{S.f[k]=e.target.value;render()}});
+ FS.forEach(([k])=>fill(k));render();
+}
+function fill(k){
+ const s=$('#f_'+k),g=(FS.find(x=>x[0]==k)||[])[2];
+ if(k=='risk'){s.innerHTML='<option value="">全部訂單</option><option value="loss">僅虧損訂單</option><option value="un">僅未核准折扣</option>';return}
+ let src=D;if(k=='rep'&&S.f.rreg)src=D.filter(r=>r.rreg==S.f.rreg);
+ const v=[...new Set(src.map(g))].filter(x=>x!==undefined).sort();
+ s.innerHTML='<option value="">全部</option>'+v.map(x=>`<option>${x}</option>`).join('');s.value=S.f[k]||'';
+}
+function filt(){
+ const f=S.f;
+ const base=r=>FS.every(([k,,g])=>!g||!f[k]||String(g(r))==f[k])&&(!f.m1||r.ym>=f.m1)&&(!f.m2||r.ym<=f.m2);
+ const F=D.filter(r=>base(r)&&(f.risk!='loss'||r.loss)&&(f.risk!='un'||r.appr=='未核准'));
+ const TT=T.filter(r=>(!f.yr||r.yr==f.yr)&&(!f.q||r.q==f.q)&&(!f.rreg||r.rreg==f.rreg)&&(!f.rep||r.rep==f.rep)&&(!f.m1||r.ym>=f.m1)&&(!f.m2||r.ym<=f.m2));
+ return[F,TT];
+}
+const fsum=()=>FS.map(([k,l])=>S.f[k]?`${l}=${S.f[k]}`:'').concat([S.f.m1?'起 '+S.f.m1:'',S.f.m2?'迄 '+S.f.m2:'']).filter(Boolean).map(x=>x.replace('risk','風險').replace('=loss','=僅虧損').replace('=un','=僅未核准')).join('　|　')||'無（顯示全部資料）';
+
+/* ---------- KPI computation ---------- */
+function calc(F,TT){
+ const rev=sum(F,r=>r.rev),gp=sum(F,r=>r.gp),tg=sum(TT,r=>r.t),L=F.filter(r=>r.loss),un=F.filter(r=>r.appr=='未核准'),
+ rt=F.filter(r=>r.ret&&r.ret!='正常'),cu=grp(F,r=>r.cust),cr=[...cu].map(([k,a])=>sum(a,r=>r.rev)).sort((a,b)=>b-a),
+ top=Math.max(1,Math.ceil(cr.length*.1)),std=dv(sum(F,r=>r.rev*(1-(STD[r.pid]??.5))),rev);
+ const ms=[...new Set(F.map(r=>r.ym))].sort(),mr=m=>sum(F.filter(r=>r.ym==m),r=>r.rev),last=ms.at(-1),
+ prev=ms.at(-2),yoyM=last?(+last.slice(0,4)-1)+last.slice(4):'',yo=sum(D.filter(r=>r.ym==yoyM),r=>r.rev);
+ return{rev,gp,gm:dv(gp,rev),tg,ach:dv(rev,tg),mom:prev?dv(mr(last),mr(prev))-1:null,yoy:yo?dv(mr(last),yo)-1:null,std,
+  nL:L.length,aL:-sum(L,r=>r.gp),rL:dv(L.length,F.length),disc:dv(sum(F,r=>r.list*r.qty-r.rev),sum(F,r=>r.list*r.qty)),nU:un.length,
+  aU:sum(un,r=>Math.max(0,r.list*r.qty*(r.disc-.1))),nC:cu.size,conc:dv(cr.slice(0,top).reduce((a,b)=>a+b,0),rev),avg:dv(rev,F.length),
+  nR:rt.length,rr:dv(rt.length,F.length),sv:sum(F,r=>r.sc),ms,L,un,cu,cr};
+}
+const col=(v,g,b)=>v>=g?'text-emerald-400':v>=b?'text-amber-400':'text-red-400';
+const KP=[
+ ['📊 總營收與達成率',k=>[ab(k.rev),'達成率 '+pc(k.ach),'MoM '+(k.mom==null?'–':pc(k.mom))+' / YoY '+(k.yoy==null?'–':pc(k.yoy)),col(k.ach,.95,.85)]],
+ ['💰 毛利與毛利率',k=>[ab(k.gp),'毛利率 '+pc(k.gm),'標準落差 '+((k.gm-k.std)*100).toFixed(1)+' pp',col(k.gm-k.std,0,-.05)]],
+ ['🚨 虧損訂單',k=>[k.nL+' 筆','虧損 '+ab(k.aL),'佔比 '+pc(k.rL),col(-k.rL,-.03,-.08)]],
+ ['🏷️ 折扣與越權',k=>[pc(k.disc),'未核准 '+k.nU+' 筆','越權損失估計 '+ab(k.aU),col(-k.nU,-5,-20)]],
+ ['🏢 客戶集中度',k=>[k.nC+' 戶','Top10% 集中度 '+pc(k.conc),'單筆均貢獻 '+ab(k.avg),col(-k.conc,-.4,-.6)]],
+ ['📦 退貨與售後',k=>[k.nR+' 筆','退貨率 '+pc(k.rr),'售後成本 '+ab(k.sv),col(-k.rr,-.1,-.2)]]];
+
+/* ---------- Render ---------- */
+const mk=(id,cfg)=>{CH[id]?.destroy();CH[id]=new Chart($('#'+id),cfg)};
+const ax=(t)=>({title:{display:!!t,text:t}});
+function render(){
+ Object.values(CH).forEach(c=>c.destroy());CH={};
+ const[F,TT]=filt(),k=calc(F,TT);
+ $('#cards').innerHTML=KP.map((p,i)=>{const[a,b,c,cl]=p[1](k);return`<div class="g kc p-4 ${S.k==i?'on':''}" onclick="S.k=${i};render()"><div class="text-sm text-gray-300">${p[0]}</div><div class="text-2xl font-bold mt-1 ${cl}">${a}</div><div class="text-xs text-gray-300 mt-1">${b}</div><div class="text-xs text-gray-500">${c}</div></div>`}).join('');
+ if(!F.length){$('#panel').innerHTML='<div class="g p-6 text-center text-gray-400">目前篩選條件下無資料</div>';return}
+ const P=PN[S.k](F,TT,k);
+ $('#panel').innerHTML=`<div class="g p-4"><div class="font-bold text-lg mb-3">${KP[S.k][0]} — 深度診斷</div>
+ <div class="grid lg:grid-cols-2 gap-4"><div><div class="text-xs text-gray-400 mb-1">${P.t1}</div><div class="h-72"><canvas id="c1"></canvas></div></div>
+ <div><div class="text-xs text-gray-400 mb-1">${P.t2}</div>${P.html2||'<div class="h-72"><canvas id="c2"></canvas></div>'}</div></div>
+ <div class="grid lg:grid-cols-2 gap-4 mt-4 text-sm">
+  <div class="rounded-lg bg-gray-900/60 p-3"><div class="font-semibold text-blue-400 mb-1">🔎 當前篩選條件</div><div class="text-xs text-gray-300">${fsum()}　（${F.length} 筆訂單）</div>
+   <div class="font-semibold text-blue-400 mt-3 mb-1">∑ 計算公式與定義</div><pre class="text-xs text-gray-300 whitespace-pre-wrap font-mono">${P.fm}</pre></div>
+  <div class="rounded-lg bg-gray-900/60 p-3"><div class="font-semibold text-red-400 mb-1">🚦 異常診斷與根因分析</div><ul class="text-xs space-y-1.5">${P.dg.map(x=>`<li>${x}</li>`).join('')}</ul>
+   <div class="font-semibold text-emerald-400 mt-3 mb-1">✅ 管理建議與行動方針</div><ul class="text-xs space-y-1.5 list-disc pl-4 text-gray-200">${P.rc.map(x=>`<li>${x}</li>`).join('')}</ul></div></div></div>`;
+ P.draw();
+}
+const R_='🔴 ',Y_='🟡 ',G_='🟢 ';
+const PN=[
+/* 1 Revenue */
+(F,TT,k)=>{const ms=k.ms,by=m=>sum(F.filter(r=>r.ym==m),r=>r.rev),tm=m=>sum(TT.filter(r=>r.ym==m),r=>r.t);
+ const reps=[...new Set(TT.map(r=>r.rep))].map(n=>{const a=sum(F.filter(r=>r.rep==n),r=>r.rev),t=sum(TT.filter(r=>r.rep==n),r=>r.t),nw=F.filter(r=>r.rep==n&&r.type=='新客').length,nt=sum(TT.filter(r=>r.rep==n),r=>r.nt);return{n,v:dv(a,t),nw,nt}}).sort((a,b)=>a.v-b.v);
+ const rg=[...grp(F,r=>r.rreg)].map(([n,a])=>({n,v:dv(sum(a,r=>r.rev),sum(TT.filter(t=>t.rreg==n),t=>t.t))}));
+ const red=reps.filter(x=>x.v<.85),cr=red.filter(x=>x.v<.8&&x.nw<x.nt),ty=grp(F,r=>r.type),sh=t=>dv(sum(ty.get(t)||[],r=>r.rev),k.rev),old=sh('續約')+sh('加購');
+ return{t1:'月度營收實績 vs 目標',t2:'業務員達成率排行（紅線 = 85%）',fm:'營收達成率 = Σ訂單營收(NT$) ÷ Σ營收目標(NT$) × 100%\nMoM = 本月營收 ÷ 上月營收 − 1；YoY = 本月 ÷ 去年同月 − 1',
+ dg:[k.ach<.85?R_+'整體達成率 '+pc(k.ach)+'，目標落後紅燈':G_+'整體達成率 '+pc(k.ach),
+  red.length?R_+'低於 85% 業務員 '+red.length+' 位：'+red.slice(0,6).map(x=>x.n+' '+pc(x.v)).join('、'):G_+'無業務員低於 85%',
+  rg.filter(x=>x.v<.85).length?R_+'落後區域：'+rg.filter(x=>x.v<.85).map(x=>x.n+' '+pc(x.v)).join('、'):G_+'各區域達成率皆 ≥ 85%',
+  (old>.7?R_:G_)+`營收結構：新客 ${pc(sh('新客'))}、續約 ${pc(sh('續約'))}、加購 ${pc(sh('加購'))}；舊客（續約+加購）占 ${pc(old)}${old>.7?'，成長動能過度依賴舊客':''}`],
+ rc:[cr.length?`達成率 < 80% 且新客筆數未達標者（${cr.map(x=>x.n).join('、')}）：啟動 Pipeline 追蹤與客戶拜訪稽核`:'目前無「<80% 且新客未達標」業務員，維持月度 Pipeline 檢視','落後區域安排主管陪訪，並檢視目標分配是否與市場潛力相符','舊客依賴度偏高時，設定新客開發 KPI 與專案獎金'],
+ draw(){mk('c1',{data:{labels:ms,datasets:[{type:'bar',label:'營收',data:ms.map(by),backgroundColor:C.b+'AA'},{type:'line',label:'目標',data:ms.map(tm),borderColor:C.o,tension:.3}]},options:{}});
+  mk('c2',{type:'bar',data:{labels:reps.map(x=>x.n),datasets:[{label:'達成率',data:reps.map(x=>x.v*100),backgroundColor:reps.map(x=>x.v<.85?C.r:x.v<1?C.o:C.g)}]},options:{indexAxis:'y',plugins:{legend:{display:false}}}})}}},
+/* 2 GP */
+(F,TT,k)=>{const g=grp(F,r=>r.line+'｜'+r.grade[0]),lines=[...new Set(F.map(r=>r.line))],cs=[['dc','直接成本'],['lc','物流成本'],['sc','售後服務成本'],['pc','專案額外成本']],
+ low=F.filter(r=>r.rev&&r.gp/r.rev<.1),t10=[...F].sort((a,b)=>a.gp-b.gp).slice(0,10),tot=cs.map(([f,n])=>[n,sum(F,r=>r[f])]).sort((a,b)=>b[1]-a[1]);
+ return{t1:'產品線×客戶等級：營收 vs 毛利率（氣泡=銷量）',t2:'成本結構占營收比（堆疊）',fm:'毛利 = 營收 − (直接成本+物流成本+售後服務成本+專案額外成本)\n綜合毛利率 = Σ毛利 ÷ Σ營收 × 100%\n標準毛利率 = Σ[營收×(1−標準成本率)] ÷ Σ營收；落差 = 實際 − 標準',
+ dg:[(k.gm<k.std?R_:G_)+`綜合毛利率 ${pc(k.gm)}，與標準 ${pc(k.std)} 落差 ${((k.gm-k.std)*100).toFixed(1)} pp`,(low.length?R_:G_)+`毛利率 < 10% 訂單 ${low.length} 筆（${pc(dv(low.length,F.length))}）`,
+  t10[0].gp<0?R_+'虧損前 10 大（列前 5）：'+t10.filter(r=>r.gp<0).slice(0,5).map(r=>`${r.id} ${r.prod} -${ab(-r.gp)}（${r.tag}）`).join('；'):G_+'無虧損訂單',
+  Y_+`成本侵蝕主因：${tot[0][0]}占營收 ${pc(dv(tot[0][1],k.rev))}；其次 ${tot[1][0]} ${pc(dv(tot[1][1],k.rev))}`],
+ rc:['毛利率低於 15% 的訂單須經財務/業務主管二次審核後才能報價','專案外包導入預算上限與供應商比價流程，超標需 COO 簽核','直接成本占比高的產品線，檢討採購與定價策略'],
+ html2:null,draw(){mk('c1',{type:'bubble',data:{datasets:[...g].map(([n,a],i)=>({label:n,data:[{x:sum(a,r=>r.rev),y:dv(sum(a,r=>r.gp),sum(a,r=>r.rev))*100,r:Math.max(4,Math.min(26,Math.sqrt(sum(a,r=>r.qty))*1.4))}],backgroundColor:PAL[i%6]+'99'}))},options:{scales:{x:ax('營收 NT$'),y:ax('毛利率 %')},plugins:{legend:{labels:{boxWidth:8,font:{size:9}}}}}});
+  mk('c2',{type:'bar',data:{labels:lines,datasets:cs.map(([f,n],i)=>({label:n,data:lines.map(l=>{const a=F.filter(r=>r.line==l);return dv(sum(a,r=>r[f]),sum(a,r=>r.rev))*100}),backgroundColor:PAL[i]}))},options:{scales:{x:{stacked:true},y:{stacked:true,...ax('% of 營收')}}}})}}},
+/* 3 Loss */
+(F,TT,k)=>{const tg=[...grp(F.filter(r=>r.loss),r=>r.tag)].map(([n,a])=>[n,-sum(a,r=>r.gp)]).sort((a,b)=>b[1]-a[1]),tot=sum(tg,x=>x[1]),reps=[...new Set(F.map(r=>r.rep))].sort(),lines=[...new Set(F.map(r=>r.line))],
+ hm=reps.map(n=>lines.map(l=>-sum(F.filter(r=>r.rep==n&&r.line==l&&r.loss),r=>r.gp))),mx=Math.max(1,...hm.flat()),
+ ex=grp(F.filter(r=>r.tag!='無'),r=>r.tag),lg=sum(F.filter(r=>r.tag=='運輸偏遠'),r=>r.lc),op=sum(F.filter(r=>r.tag=='外包成本超支'),r=>r.pc),ur=sum(F.filter(r=>r.tag=='專案急件'),r=>r.pc);
+ return{t1:'虧損金額 Pareto（依異常原因）',t2:'虧損金額熱力圖：業務員 × 產品線',fm:'虧損比率 = Count(是否虧損=是) ÷ 總訂單筆數 × 100%\n虧損金額 = Σ|毛利|（毛利 < 0）\n標籤侵蝕度 = 該標籤訂單之毛利損失 ÷ 總虧損金額',
+ html2:`<div class="h-72 overflow-auto"><table class="w-full"><tr><th>業務員</th>${lines.map(l=>`<th>${l}</th>`).join('')}</tr>${reps.map((n,i)=>`<tr><td>${n}</td>${hm[i].map(v=>`<td style="background:rgba(239,68,68,${(v/mx*.85).toFixed(2)})">${v?ab(v):''}</td>`).join('')}</tr>`).join('')}</table></div>`,
+ dg:[(k.rL>.08?R_:k.rL>.03?Y_:G_)+`虧損 ${k.nL} 筆，占比 ${pc(k.rL)}，總額 ${ab(k.aL)}`,...tg.slice(0,4).map(([n,v])=>Y_+`「${n}」造成毛利流失 ${ab(v)}（占虧損 ${pc(dv(v,tot))}）`),
+  (dv(lg,k.rev)>.03?R_:Y_)+`偏遠運輸物流費合計 ${ab(lg)}，檢查是否已併入報價`,(op+ur>0?R_:G_)+`外包超支 ${ab(op)}、急件額外成本 ${ab(ur)}，疑有加班/外包成本暴增`],
+ rc:['「運輸偏遠」訂單建立縣市別運費加價表並納入報價系統','「專案急件」設置急件處置費（建議為專案成本之一定比例）','外包超支案件導入事前預算核定與月度回顧','「策略客戶特批」虧損需列入年度策略投資預算追蹤 ROI'],
+ draw(){mk('c1',{data:{labels:tg.map(x=>x[0]),datasets:[{type:'bar',label:'虧損金額',data:tg.map(x=>x[1]),backgroundColor:C.r+'BB'},{type:'line',label:'累計 %',data:tg.map((x,i)=>dv(tg.slice(0,i+1).reduce((a,b)=>a+b[1],0),tot)*100),borderColor:C.o,yAxisID:'y1'}]},options:{scales:{y1:{position:'right',max:100,grid:{display:false}}}}})}}},
+/* 4 Discount */
+(F,TT,k)=>{const bk=[[0,.05,'0-5%'],[.05,.1,'5-10%'],[.1,.2,'10-20%'],[.2,9,'>20%']],hi=F.filter(r=>r.disc>.2),ineff=hi.filter(r=>r.gp/r.rev<.15),un=k.un,un20=un.filter(r=>r.disc>.2),
+ reps=[...grp(F,r=>r.rep)].map(([n,a])=>({x:dv(sum(a,r=>r.list*r.qty-r.rev),sum(a,r=>r.list*r.qty))*100,y:dv(sum(a,r=>r.gp),sum(a,r=>r.rev))*100,n}));
+ return{t1:'折扣率分佈直方圖（筆數）',t2:'業務員平均折扣率 vs 毛利率',fm:'折扣率 = (牌價單價 − 成交單價) ÷ 牌價單價 × 100%\n越權折扣損失估計 = Σ[未核准訂單 牌價×數量×max(0, 折扣率 − 10%)]\n（10% 為示範之業務自行核決門檻，請依公司規章調整）',
+ dg:[(k.nU?R_:G_)+`已成交但「未核准」折扣訂單 ${k.nU} 筆，其中折扣 > 20% 者 ${un20.length} 筆；明細：${un.slice(0,4).map(r=>r.id+'/'+r.rep).join('、')}`,
+  (ineff.length?R_:G_)+`高折扣(>20%) ${hi.length} 筆中，毛利率 < 15% 的非策略性折讓 ${ineff.length} 筆（${ineff.filter(r=>r.tag!='策略客戶特批').length} 筆無策略特批標籤）`,
+  Y_+`越權折扣損失估計 ${ab(k.aU)}；整體平均折扣 ${pc(k.disc)}`],
+ rc:['ERP 過單流程鎖定：未取得主管簽核之高折扣訂單禁止出貨','折扣核決權限分級（業務 ≤10%、主管 ≤20%、>20% 須 COO/CFO）','重新評估低價競標政策，並要求每案附毛利試算','將「折扣核准合規率」納入業務績效考核'],
+ draw(){mk('c1',{type:'bar',data:{labels:bk.map(b=>b[2]),datasets:[{label:'訂單筆數',data:bk.map(b=>F.filter(r=>r.disc>=b[0]&&r.disc<b[1]).length),backgroundColor:[C.g,C.b,C.o,C.r]}]},options:{plugins:{legend:{display:false}}}});
+  mk('c2',{type:'scatter',data:{datasets:[{label:'業務員',data:reps,backgroundColor:C.c}]},options:{scales:{x:ax('平均折扣率 %'),y:ax('毛利率 %')},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw.n+` 折扣${c.raw.x.toFixed(1)}% 毛利${c.raw.y.toFixed(1)}%`}}}}})}}},
+/* 5 Customer */
+(F,TT,k)=>{const gd=[...grp(F,r=>r.grade)].sort(),cs=[...k.cu].map(([n,a])=>({n,rev:sum(a,r=>r.rev),gp:sum(a,r=>r.gp),sv:sum(a,r=>r.sc),pay:sum(a,r=>r.pay)/a.length,g:a[0].grade})).sort((a,b)=>b.rev-a.rev),t15=cs.slice(0,15),
+ aS=dv(sum(F.filter(r=>r.grade[0]=='A'),r=>r.rev),k.rev),cb=cs.filter(c=>c.g[0]=='C'&&c.rev>0&&dv(c.sv,c.rev)>.04&&dv(c.gp,c.rev)<k.gm*.8),late=t15.filter(c=>c.pay>60);
+ return{t1:'客戶等級營收占比（Donut）',t2:'Top 15 客戶營收與平均付款天數',fm:'Top 10% 集中度 = Σ前 10% 頂級客戶營收 ÷ 總營收 × 100%\n客戶平均單筆貢獻 = 總營收 ÷ 訂單筆數\n高維護低毛利客戶 = 售後成本/營收 > 4% 且毛利率 < 整體 80%（C 級）',
+ dg:[(k.conc>.6?R_:k.conc>.4?Y_:G_)+`Top 10% 客戶占營收 ${pc(k.conc)}${k.conc>.6?'（> 60%，高營運風險）':''}；A 級客戶占 ${pc(aS)}`,(late.length?Y_:G_)+`Top 15 中平均付款天數 > 60 天者 ${late.length} 戶${late.length?'：'+late.slice(0,4).map(c=>c.n+' '+c.pay.toFixed(0)+'天').join('、'):''}`,
+  (cb.length?R_:G_)+`C 級「高維護成本、低毛利」客戶 ${cb.length} 戶：${cb.slice(0,5).map(c=>c.n+' 毛利'+pc(dv(c.gp,c.rev))).join('、')||'無'}`],
+ rc:['A 級戰略客戶成立專責 Key Account 團隊，並做年度續約與風險覆核','Top 客戶回款逾期者導入信用額度與催收節奏','低貢獻高成本 C 級客戶調整 SLA 或產品價格，或導入自助式服務','降低集中度：設定新客與中型客戶成長目標'],
+ draw(){mk('c1',{type:'doughnut',data:{labels:gd.map(x=>x[0]),datasets:[{data:gd.map(x=>sum(x[1],r=>r.rev)),backgroundColor:[C.g,C.b,C.o]}]},options:{}});
+  mk('c2',{data:{labels:t15.map(c=>c.n),datasets:[{type:'bar',label:'營收',data:t15.map(c=>c.rev),backgroundColor:C.b+'AA'},{type:'line',label:'付款天數',data:t15.map(c=>c.pay),borderColor:C.o,yAxisID:'y1'}]},options:{scales:{y1:{position:'right',grid:{display:false}}}}})}}},
+/* 6 Returns */
+(F,TT,k)=>{const rrate=a=>dv(a.filter(r=>r.ret!='正常').length,a.length),pr=[...grp(F,r=>r.prod)].map(([n,a])=>({n,v:rrate(a),l:a[0].line,c:a.length})).filter(x=>x.c>=3).sort((a,b)=>a.v-b.v),hi=pr.filter(x=>x.v>k.rr*1.5).reverse(),
+ st=['正常','部分退貨','已退貨'],ms=k.ms,sv=dv(sum(F.filter(r=>r.ret!='正常'),r=>r.sc),F.filter(r=>r.ret!='正常').length),sn=dv(sum(F.filter(r=>r.ret=='正常'),r=>r.sc),F.filter(r=>r.ret=='正常').length);
+ return{t1:'產品退貨率排行（≥3 筆）',t2:'月度退貨率與售後成本趨勢',fm:'退貨率 = Count(退貨狀態 ≠ 正常) ÷ 總訂單筆數 × 100%\n售後成本率 = Σ售後服務成本 ÷ Σ營收',
+ dg:[(k.rr>.2?R_:k.rr>.1?Y_:G_)+`整體退貨率 ${pc(k.rr)}（${k.nR} 筆）`,(hi.length?R_:G_)+`顯著高於平均(>1.5 倍)：${hi.slice(0,5).map(x=>`${x.n}(${x.l}) ${pc(x.v)}`).join('、')||'無'}`,
+  (sv>sn*1.3?R_:Y_)+`退貨訂單平均售後成本 ${n0(sv)} vs 正常訂單 ${n0(sn)}（${sn?(sv/sn).toFixed(1)+' 倍':'–'}）`,Y_+`售後服務總成本 ${ab(k.sv)}，占營收 ${pc(dv(k.sv,k.rev))}，直接侵蝕淨毛利`],
+ rc:['針對高退貨率產品啟動產品團隊品質診斷（RCA / 8D）','高退貨顧問項目重新制定交付檢核表 (SLA Checklist) 與驗收簽核','售後成本異常客戶/產品列入月度品質會議追蹤','建立退貨原因碼，後續可細分品質、規格、交付問題'],
+ draw(){mk('c1',{type:'bar',data:{labels:pr.map(x=>x.n),datasets:[{label:'退貨率 %',data:pr.map(x=>x.v*100),backgroundColor:pr.map(x=>x.v>k.rr*1.5?C.r:C.b)}]},options:{indexAxis:'y',plugins:{legend:{display:false}}}});
+  mk('c2',{type:'line',data:{labels:ms,datasets:[{label:'退貨率 %',data:ms.map(m=>rrate(F.filter(r=>r.ym==m))*100),borderColor:C.r},{label:'售後成本 NT$',data:ms.map(m=>sum(F.filter(r=>r.ym==m),r=>r.sc)),borderColor:C.o,yAxisID:'y1'}]},options:{scales:{y1:{position:'right',grid:{display:false}}}}})}}}];
+mock();$('#src').textContent='資料來源：內建模擬數據（'+D.length+' 筆）— 請上傳您的 .xlsx 取代';init();
+</script></body></html>

@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>部門導向階層架構與人員異動管理系統</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Inter & Noto Sans TC -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', 'Noto Sans TC', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #475569;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #64748b;
+    }
+    .dragging {
+      opacity: 0.5;
+      transform: scale(0.98);
+    }
+    .drag-over {
+      border-color: #3b82f6 !important;
+      background-color: rgba(59, 130, 246, 0.08) !important;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-30 px-6 py-4 shadow-md">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/30">
+          <i class="fa-solid fa-sitemap text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-white tracking-wide">部門導向階層架構系統</h1>
+          <p class="text-xs text-slate-400">拖曳調整部門與職級 · 即時異動日誌 · 匯出異動申請單</p>
+        </div>
+      </div>
+
+      <!-- Top Action Buttons -->
+      <div class="flex items-center space-x-3">
+        <button id="feedbackBtn" onclick="openFeedbackModal()" class="bg-amber-600 hover:bg-amber-500 text-white px-3.5 py-1.5 rounded-lg text-sm font-medium transition flex items-center shadow-sm">
+          <i class="fa-solid fa-comment-dots mr-1.5"></i> 意見申訴
+        </button>
+        <button id="addEmpBtn" onclick="openAddEmpModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-lg text-sm font-medium transition flex items-center shadow-sm">
+          <i class="fa-solid fa-user-plus mr-1.5"></i> 新增人員
+        </button>
+        <button id="addDeptBtn" onclick="openAddDeptModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-1.5 rounded-lg text-sm font-medium transition flex items-center shadow-sm">
+          <i class="fa-solid fa-folder-plus mr-1.5"></i> 新增部門
+        </button>
+        <button onclick="resetData()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center">
+          <i class="fa-solid fa-rotate-left mr-1.5"></i> 重設
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+    
+    <!-- Left 3 Columns: Department Hierarchy Canvas -->
+    <div class="lg:col-span-3 flex flex-col space-y-4">
+      
+      <!-- Toolbar & Search -->
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex flex-wrap items-center justify-between gap-4">
+        <div class="relative flex-1 min-w-[200px]">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+          <input type="text" id="searchInput" oninput="filterEmployees()" placeholder="搜尋姓名、職銜、員工編號..." 
+            class="w-full pl-9 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+        </div>
+        <div class="flex items-center space-x-3 text-xs text-slate-400">
+          <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block mr-1"></span> L1 高層</span>
+          <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-indigo-500 inline-block mr-1"></span> L2 部門主管</span>
+          <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-cyan-500 inline-block mr-1"></span> L3 資深員工</span>
+          <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-slate-400 inline-block mr-1"></span> L4 一般人員</span>
+        </div>
+      </div>
+
+      <!-- Department Columns Canvas -->
+      <div id="deptBoard" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 items-start">
+        <!-- Dynamic Departments Rendered Here -->
+      </div>
+    </div>
+
+    <!-- Right 1 Column: Audit Log & Export Panel -->
+    <div class="lg:col-span-1 flex flex-col space-y-4">
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col h-full min-h-[500px]">
+        
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+          <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-clock-rotate-left text-indigo-400"></i>
+            <h2 class="font-semibold text-slate-200">人員異動紀錄</h2>
+          </div>
+          <span id="logCount" class="bg-indigo-950 text-indigo-300 text-xs px-2 py-0.5 rounded-full border border-indigo-800 font-mono">0</span>
+        </div>
+
+        <!-- Log List -->
+        <div id="logList" class="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-1 max-h-[550px]">
+          <!-- Logs populate here -->
+        </div>
+
+        <!-- Action Panel -->
+        <div class="pt-4 border-t border-slate-800 mt-4 space-y-2">
+          <button onclick="copyTransferForm()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded-lg text-sm transition flex items-center justify-center shadow">
+            <i class="fa-solid fa-copy mr-2"></i> 複製異動申請單
+          </button>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="exportCSV()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2 px-3 rounded-lg text-xs transition flex items-center justify-center border border-slate-700">
+              <i class="fa-solid fa-file-csv mr-1.5 text-emerald-400"></i> 匯出 CSV
+            </button>
+            <button onclick="exportJSON()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2 px-3 rounded-lg text-xs transition flex items-center justify-center border border-slate-700">
+              <i class="fa-solid fa-file-code mr-1.5 text-amber-400"></i> 匯出 JSON
+            </button>
+          </div>
+          <button onclick="clearLogs()" class="w-full text-xs text-slate-500 hover:text-rose-400 py-1 transition text-center">
+            清空歷史紀錄
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700 transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center space-x-3">
+    <i class="fa-solid fa-circle-check text-emerald-400 text-lg" id="toastIcon"></i>
+    <span id="toastMsg" class="text-sm font-medium">提示訊息</span>
+  </div>
+
+  <!-- Feedback / Complaint Modal -->
+  <div id="feedbackModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl relative">
+      <h3 class="text-lg font-bold text-slate-100 mb-2 flex items-center">
+        <i class="fa-solid fa-paper-plane mr-2 text-amber-400"></i> 意見申訴表單
+      </h3>
+      <p class="text-xs text-slate-400 mb-4">您的意見將會即時同步寫入 Google 試算表中。</p>
+      
+      <form id="feedbackForm" onsubmit="submitFeedback(event)" class="space-y-4 text-sm">
+        <div>
+          <label class="block text-slate-400 mb-1">姓名 <span class="text-rose-400">*</span></label>
+          <input type="text" id="fbName" required placeholder="請輸入姓名" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-amber-500">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">職位 / 職銜 <span class="text-rose-400">*</span></label>
+          <input type="text" id="fbPosition" required placeholder="例如：研發部 專員" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-amber-500">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">意見欄位 <span class="text-rose-400">*</span></label>
+          <textarea id="fbComments" required rows="4" placeholder="請詳細說明您的申訴或建議內容..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-amber-500 resize-none"></textarea>
+        </div>
+        
+        <!-- GAS Script URL Setting (Saved in localStorage) -->
+        <div class="pt-2 border-t border-slate-800">
+          <label class="block text-[11px] text-slate-500 mb-1">Google Apps Script Web App URL (GAS 部署網址)</label>
+          <input type="url" id="fbGasUrl" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-300 font-mono focus:outline-none focus:border-amber-500">
+        </div>
+
+        <div class="flex items-center justify-end space-x-3 mt-6">
+          <button type="button" onclick="closeFeedbackModal()" class="px-4 py-2 rounded-lg text-slate-400 hover:bg-slate-800 text-sm">取消</button>
+          <button type="submit" id="fbSubmitBtn" class="px-5 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-sm font-medium transition flex items-center">
+            <i class="fa-solid fa-paper-plane mr-1.5"></i> 送出申訴
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Employee Modal -->
+  <div id="empModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
+      <h3 id="empModalTitle" class="text-lg font-bold text-slate-100 mb-4 flex items-center">
+        <i class="fa-solid fa-user-pen mr-2 text-indigo-400"></i> 編輯員工資訊
+      </h3>
+      <input type="hidden" id="editEmpId">
+      
+      <div class="space-y-4 text-sm">
+        <div>
+          <label class="block text-slate-400 mb-1">員工姓名</label>
+          <input type="text" id="editEmpName" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">所屬部門</label>
+          <select id="editEmpDept" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500">
+          </select>
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">職位 / 職銜</label>
+          <input type="text" id="editEmpTitle" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">層級 (Level)</label>
+          <select id="editEmpLevel" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500">
+            <option value="L1">L1 - 核心高層</option>
+            <option value="L2">L2 - 部門主管 / 經理</option>
+            <option value="L3">L3 - 資深人員 / 主任</option>
+            <option value="L4">L4 - 一般專員 / 助理</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end space-x-3 mt-6">
+        <button onclick="closeEmpModal()" class="px-4 py-2 rounded-lg text-slate-400 hover:bg-slate-800 text-sm">取消</button>
+        <button onclick="saveEmpChanges()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium">儲存變更</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Department Modal -->
+  <div id="deptModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-6 shadow-2xl">
+      <h3 class="text-lg font-bold text-slate-100 mb-4 flex items-center">
+        <i class="fa-solid fa-folder-plus mr-2 text-indigo-400"></i> 新增部門
+      </h3>
+      <div class="space-y-4 text-sm">
+        <div>
+          <label class="block text-slate-400 mb-1">部門名稱</label>
+          <input type="text" id="newDeptName" placeholder="例如：法務部" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500">
+        </div>
+      </div>
+      <div class="flex items-center justify-end space-x-3 mt-6">
+        <button onclick="closeDeptModal()" class="px-4 py-2 rounded-lg text-slate-400 hover:bg-slate-800 text-sm">取消</button>
+        <button onclick="saveNewDept()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium">新增</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Script Logic -->
+  <script>
+    // 20 Initial Employee Data Sample
+    const initialEmployees = [
+      { id: "EMP-001", name: "張哲銘", dept: "經營高層", title: "執行長 (CEO)", level: "L1" },
+      { id: "EMP-002", name: "林怡君", dept: "經營高層", title: "營運長 (COO)", level: "L1" },
+      { id: "EMP-003", name: "陳建宏", dept: "研發部", title: "研發總監", level: "L2" },
+      { id: "EMP-004", name: "黃詩涵", dept: "研發部", title: "資深後端工程師", level: "L3" },
+      { id: "EMP-005", name: "吳冠宇", dept: "研發部", title: "前端架構師", level: "L3" },
+      { id: "EMP-006", name: "蔡佩珊", dept: "研發部", title: "全端工程師", level: "L4" },
+      { id: "EMP-007", name: "楊智傑", dept: "研發部", title: "UI/UX 設計師", level: "L4" },
+      { id: "EMP-008", name: "劉家豪", dept: "行銷部", title: "行銷經理", level: "L2" },
+      { id: "EMP-009", name: "鄭雅婷", dept: "行銷部", title: "資深企劃專員", level: "L3" },
+      { id: "EMP-010", name: "謝宗翰", dept: "行銷部", title: "社群營運專員", level: "L4" },
+      { id: "EMP-011", name: "郭佳穎", dept: "行銷部", title: "數位廣告投手", level: "L4" },
+      { id: "EMP-012", name: "曾偉翔", dept: "業務部", title: "業務副理", level: "L2" },
+      { id: "EMP-013", name: "邱郁婷", dept: "業務部", title: "資深業務代表", level: "L3" },
+      { id: "EMP-014", name: "賴柏翰", dept: "業務部", title: "海外市場專員", level: "L4" },
+      { id: "EMP-015", name: "周書瑋", dept: "業務部", title: "客戶成功專員", level: "L4" },
+      { id: "EMP-016", name: "徐千惠", dept: "人力資源部", title: "人資主管", level: "L2" },
+      { id: "EMP-017", name: "葉名軒", dept: "人力資源部", title: "招募資深專員", level: "L3" },
+      { id: "EMP-018", name: "莊斯涵", dept: "人力資源部", title: "員工關係專員", level: "L4" },
+      { id: "EMP-019", name: "江俊德", dept: "財務部", title: "財務經理", level: "L2" },
+      { id: "EMP-020", name: "廖美玲", dept: "財務部", title: "主辦會計", level: "L3" }
+    ];
+
+    let departments = ["經營高層", "研發部", "行銷部", "業務部", "人力資源部", "財務部"];
+    let employees = JSON.parse(localStorage.getItem('org_employees')) || [...initialEmployees];
+    let logs = JSON.parse(localStorage.getItem('org_logs')) || [];
+
+    // Save State
+    function saveData() {
+      localStorage.setItem('org_employees', JSON.stringify(employees));
+      localStorage.setItem('org_logs', JSON.stringify(logs));
+    }
+
+    // Reset Data
+    function resetData() {
+      if (confirm('確定要重設所有資料與異動紀錄嗎？')) {
+        employees = [...initialEmployees];
+        logs = [];
+        departments = ["經營高層", "研發部", "行銷部", "業務部", "人力資源部", "財務部"];
+        saveData();
+        renderBoard();
+        renderLogs();
+        showToast('已重設為初始狀態');
+      }
+    }
+
+    // Level Color Map
+    const levelColors = {
+      'L1': { bg: 'bg-amber-500/10', text: 'text-amber-400', border: 'border-amber-500/30', badge: 'bg-amber-500' },
+      'L2': { bg: 'bg-indigo-500/10', text: 'text-indigo-400', border: 'border-indigo-500/30', badge: 'bg-indigo-500' },
+      'L3': { bg: 'bg-cyan-500/10', text: 'text-cyan-400', border: 'border-cyan-500/30', badge: 'bg-cyan-500' },
+      'L4': { bg: 'bg-slate-500/10', text: 'text-slate-400', border: 'border-slate-500/30', badge: 'bg-slate-500' }
+    };
+
+    // Render Canvas
+    function renderBoard(searchTerm = '') {
+      const board = document.getElementById('deptBoard');
+      board.innerHTML = '';
+
+      // Ensure all department options exist
+      const activeDepts = [...new Set([...departments, ...employees.map(e => e.dept)])];
+
+      activeDepts.forEach(deptName => {
+        const deptEmps = employees.filter(e => e.dept === deptName && (
+          e.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          e.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          e.id.toLowerCase().includes(searchTerm.toLowerCase())
+        ));
+
+        // Sorting by level
+        deptEmps.sort((a, b) => a.level.localeCompare(b.level));
+
+        const deptCol = document.createElement('div');
+        deptCol.className = 'bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col min-h-[250px] transition duration-150';
+        deptCol.setAttribute('data-dept', deptName);
+
+        // Dragover events for column
+        deptCol.addEventListener('dragover', handleDragOver);
+        deptCol.addEventListener('dragleave', handleDragLeave);
+        deptCol.addEventListener('drop', handleDrop);
+
+        deptCol.innerHTML = `
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
+            <div class="flex items-center space-x-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
+              <h3 class="font-bold text-slate-200">${escapeHtml(deptName)}</h3>
+            </div>
+            <span class="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">${deptEmps.length} 人</span>
+          </div>
+
+          <div class="flex-1 space-y-2.5 dept-drop-zone min-h-[150px]">
+            ${deptEmps.length === 0 ? `
+              <div class="h-full flex items-center justify-center text-xs text-slate-600 border-2 border-dashed border-slate-800/80 rounded-lg p-4 text-center">
+                拖曳成員至此處
+              </div>
+            ` : deptEmps.map(emp => {
+              const colors = levelColors[emp.level] || levelColors['L4'];
+              return `
+                <div 
+                  draggable="true" 
+                  ondragstart="handleDragStart(event, '${emp.id}')"
+                  ondragend="handleDragEnd(event)"
+                  class="bg-slate-950 border ${colors.border} rounded-lg p-3 cursor-grab active:cursor-grabbing hover:border-slate-600 transition shadow-sm relative group"
+                >
+                  <div class="flex items-start justify-between">
+                    <div>
+                      <div class="flex items-center space-x-2">
+                        <span class="text-xs font-semibold ${colors.text} px-1.5 py-0.5 rounded ${colors.bg} font-mono">${emp.level}</span>
+                        <span class="font-semibold text-slate-100 text-sm">${escapeHtml(emp.name)}</span>
+                      </div>
+                      <p class="text-xs text-slate-400 mt-1">${escapeHtml(emp.title)}</p>
+                    </div>
+                    <div class="opacity-0 group-hover:opacity-100 transition flex items-center space-x-1">
+                      <button onclick="openEditEmpModal('${emp.id}')" class="text-slate-400 hover:text-indigo-400 p-1 rounded">
+                        <i class="fa-solid fa-pen-to-square text-xs"></i>
+                      </button>
+                      <button onclick="deleteEmployee('${emp.id}')" class="text-slate-400 hover:text-rose-400 p-1 rounded">
+                        <i class="fa-solid fa-trash text-xs"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="mt-2 text-[10px] text-slate-500 font-mono flex items-center justify-between">
+                    <span>${emp.id}</span>
+                    <i class="fa-solid fa-grip-lines text-slate-600"></i>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+
+        board.appendChild(deptCol);
+      });
+    }
+
+    // Drag & Drop Handlers
+    let draggedEmpId = null;
+
+    function handleDragStart(e, empId) {
+      draggedEmpId = empId;
+      e.target.classList.add('dragging');
+      e.dataTransfer.setData('text/plain', empId);
+    }
+
+    function handleDragEnd(e) {
+      e.target.classList.remove('dragging');
+      document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      const deptCol = e.currentTarget;
+      deptCol.classList.add('drag-over');
+    }
+
+    function handleDragLeave(e) {
+      const deptCol = e.currentTarget;
+      deptCol.classList.remove('drag-over');
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      const deptCol = e.currentTarget;
+      deptCol.classList.remove('drag-over');
+
+      const newDept = deptCol.getAttribute('data-dept');
+      if (!draggedEmpId || !newDept) return;
+
+      const emp = employees.find(e => e.id === draggedEmpId);
+      if (emp && emp.dept !== newDept) {
+        const oldDept = emp.dept;
+        emp.dept = newDept;
+        
+        // Add Transfer Log
+        addLog({
+          empId: emp.id,
+          name: emp.name,
+          type: '部門異動',
+          from: oldDept,
+          to: newDept,
+          timestamp: new Date().toLocaleString('zh-TW', { hour12: false })
+        });
+
+        saveData();
+        renderBoard(document.getElementById('searchInput').value);
+        renderLogs();
+        showToast(`已成功將 ${emp.name} 調至 ${newDept}`);
+      }
+    }
+
+    // Logs Handling
+    function addLog(logData) {
+      logs.unshift(logData);
+      saveData();
+    }
+
+    function renderLogs() {
+      const logList = document.getElementById('logList');
+      document.getElementById('logCount').textContent = logs.length;
+
+      if (logs.length === 0) {
+        logList.innerHTML = `
+          <div class="text-center text-slate-600 text-xs py-8">
+            尚無異動紀錄<br>可透過拖曳員工卡片進行調整
+          </div>
+        `;
+        return;
+      }
+
+      logList.innerHTML = logs.map(log => `
+        <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-indigo-400">${escapeHtml(log.name)} (${log.empId})</span>
+            <span class="text-[10px] text-slate-500 font-mono">${log.timestamp}</span>
+          </div>
+          <p class="text-slate-300">
+            <span class="text-slate-500">${escapeHtml(log.type)}:</span> 
+            <span class="text-slate-400">${escapeHtml(log.from)}</span> 
+            <i class="fa-solid fa-arrow-right text-[10px] text-indigo-400 mx-1"></i> 
+            <span class="text-indigo-300 font-medium">${escapeHtml(log.to)}</span>
+          </p>
+        </div>
+      `).join('');
+    }
+
+    function clearLogs() {
+      if (logs.length === 0) return;
+      if (confirm('確定清空所有異動紀錄嗎？')) {
+        logs = [];
+        saveData();
+        renderLogs();
+        showToast('已清空歷史紀錄');
+      }
+    }
+
+    // Copy Transfer Form
+    function copyTransferForm() {
+      if (logs.length === 0) {
+        showToast('目前尚無異動紀錄可生成申請單');
+        return;
+      }
+
+      let text = `【人員職務異動申請單】\n`;
+      text += `申請日期：${new Date().toLocaleDateString('zh-TW')}\n`;
+      text += `----------------------------------------\n`;
+      logs.forEach((log, index) => {
+        text += `${index + 1}. [${log.empId}] ${log.name}\n`;
+        text += `   類別：${log.type}\n`;
+        text += `   調整：${log.from} ➔ ${log.to}\n`;
+        text += `   時間：${log.timestamp}\n\n`;
+      });
+      text += `----------------------------------------\n`;
+      text += `簽核人員：____________  審核日期：____________`;
+
+      const tempInput = document.createElement('textarea');
+      tempInput.value = text;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+
+      showToast('已成功複製異動申請單內容至剪貼簿！');
+    }
+
+    // Export Files
+    function exportCSV() {
+      if (logs.length === 0) {
+        showToast('目前尚無異動紀錄可匯出');
+        return;
+      }
+      let csv = "\uFEFF員工編號,姓名,異動類型,原資訊,新資訊,時間戳記\n";
+      logs.forEach(l => {
+        csv += `"${l.empId}","${l.name}","${l.type}","${l.from}","${l.to}","${l.timestamp}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `人員異動申請單_${new Date().toISOString().slice(0,10)}.csv`;
+      link.click();
+      showToast('已開始下載 CSV 檔案');
+    }
+
+    function exportJSON() {
+      if (logs.length === 0) {
+        showToast('目前尚無異動紀錄可匯出');
+        return;
+      }
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(logs, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `異動紀錄_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast('已開始下載 JSON 檔案');
+    }
+
+    // Employee Edit Modal
+    function openEditEmpModal(empId) {
+      const emp = employees.find(e => e.id === empId);
+      if (!emp) return;
+
+      document.getElementById('editEmpId').value = emp.id;
+      document.getElementById('editEmpName').value = emp.name;
+      document.getElementById('editEmpTitle').value = emp.title;
+      document.getElementById('editEmpLevel').value = emp.level;
+
+      // Populate Dept Options
+      const deptSelect = document.getElementById('editEmpDept');
+      const activeDepts = [...new Set([...departments, ...employees.map(e => e.dept)])];
+      deptSelect.innerHTML = activeDepts.map(d => `
+        <option value="${d}" ${d === emp.dept ? 'selected' : ''}>${d}</option>
+      `).join('');
+
+      document.getElementById('empModalTitle').innerHTML = `<i class="fa-solid fa-user-pen mr-2 text-indigo-400"></i> 編輯員工資訊 (${emp.id})`;
+      document.getElementById('empModal').classList.remove('hidden');
+    }
+
+    function openAddEmpModal() {
+      document.getElementById('editEmpId').value = '';
+      document.getElementById('editEmpName').value = '';
+      document.getElementById('editEmpTitle').value = '';
+      document.getElementById('editEmpLevel').value = 'L4';
+
+      const deptSelect = document.getElementById('editEmpDept');
+      const activeDepts = [...new Set([...departments, ...employees.map(e => e.dept)])];
+      deptSelect.innerHTML = activeDepts.map(d => `<option value="${d}">${d}</option>`).join('');
+
+      document.getElementById('empModalTitle').innerHTML = `<i class="fa-solid fa-user-plus mr-2 text-emerald-400"></i> 新增員工`;
+      document.getElementById('empModal').classList.remove('hidden');
+    }
+
+    function closeEmpModal() {
+      document.getElementById('empModal').classList.add('hidden');
+    }
+
+    function saveEmpChanges() {
+      const id = document.getElementById('editEmpId').value;
+      const name = document.getElementById('editEmpName').value.trim();
+      const dept = document.getElementById('editEmpDept').value;
+      const title = document.getElementById('editEmpTitle').value.trim();
+      const level = document.getElementById('editEmpLevel').value;
+
+      if (!name || !title) {
+        alert('請填寫完整姓名與職銜！');
+        return;
+      }
+
+      if (id) {
+        // Edit existing
+        const emp = employees.find(e => e.id === id);
+        if (emp) {
+          const changes = [];
+          if (emp.dept !== dept) changes.push(`部門: ${emp.dept}➔${dept}`);
+          if (emp.title !== title) changes.push(`職銜: ${emp.title}➔${title}`);
+          if (emp.level !== level) changes.push(`層級: ${emp.level}➔${level}`);
+
+          if (changes.length > 0) {
+            addLog({
+              empId: emp.id,
+              name: name,
+              type: '資訊微調',
+              from: `${emp.dept}/${emp.title}`,
+              to: `${dept}/${title}`,
+              timestamp: new Date().toLocaleString('zh-TW', { hour12: false })
+            });
+          }
+
+          emp.name = name;
+          emp.dept = dept;
+          emp.title = title;
+          emp.level = level;
+          showToast(`已更新 ${name} 的資料`);
+        }
+      } else {
+        // Create new
+        const newId = `EMP-${String(employees.length + 1).padStart(3, '0')}`;
+        const newEmp = { id: newId, name, dept, title, level };
+        employees.push(newEmp);
+
+        addLog({
+          empId: newId,
+          name: name,
+          type: '新進人員',
+          from: '無',
+          to: `${dept} (${title})`,
+          timestamp: new Date().toLocaleString('zh-TW', { hour12: false })
+        });
+        showToast(`已成功新增成員 ${name}`);
+      }
+
+      saveData();
+      renderBoard(document.getElementById('searchInput').value);
+      renderLogs();
+      closeEmpModal();
+    }
+
+    function deleteEmployee(empId) {
+      const emp = employees.find(e => e.id === empId);
+      if (!emp) return;
+
+      if (confirm(`確定要刪除員工 [${emp.name}] 嗎？`)) {
+        employees = employees.filter(e => e.id !== empId);
+        addLog({
+          empId: emp.id,
+          name: emp.name,
+          type: '離職/刪除',
+          from: `${emp.dept} (${emp.title})`,
+          to: '已移除',
+          timestamp: new Date().toLocaleString('zh-TW', { hour12: false })
+        });
+        saveData();
+        renderBoard(document.getElementById('searchInput').value);
+        renderLogs();
+        showToast(`已刪除員工 ${emp.name}`);
+      }
+    }
+
+    // Add Department Modal
+    function openAddDeptModal() {
+      document.getElementById('newDeptName').value = '';
+      document.getElementById('deptModal').classList.remove('hidden');
+    }
+
+    function closeDeptModal() {
+      document.getElementById('deptModal').classList.add('hidden');
+    }
+
+    function saveNewDept() {
+      const deptName = document.getElementById('newDeptName').value.trim();
+      if (!deptName) {
+        alert('請輸入部門名稱！');
+        return;
+      }
+      if (departments.includes(deptName)) {
+        alert('該部門名稱已存在！');
+        return;
+      }
+      departments.push(deptName);
+      renderBoard();
+      closeDeptModal();
+      showToast(`已成功建立新部門：${deptName}`);
+    }
+
+    // Filter Search
+    function filterEmployees() {
+      const query = document.getElementById('searchInput').value;
+      renderBoard(query);
+    }
+
+    // Feedback Modal & Google Sheet Submission Logic
+    const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbyVRoooIwsehtDQ763h5pgMi1JbyY1MNV8UlvV7ke6k0RzaMb_cfhfRHPhhmEHJTtxy/exec';
+
+    function openFeedbackModal() {
+      const savedGasUrl = localStorage.getItem('gas_app_url') || DEFAULT_GAS_URL;
+      document.getElementById('fbGasUrl').value = savedGasUrl;
+      document.getElementById('feedbackModal').classList.remove('hidden');
+    }
+
+    function closeFeedbackModal() {
+      document.getElementById('feedbackModal').classList.add('hidden');
+    }
+
+    function submitFeedback(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('fbName').value.trim();
+      const position = document.getElementById('fbPosition').value.trim();
+      const comments = document.getElementById('fbComments').value.trim();
+      const gasUrl = document.getElementById('fbGasUrl').value.trim();
+
+      if (!gasUrl) {
+        alert('請先填入 Google Apps Script 部署網址 (Web App URL)！');
+        return;
+      }
+
+      // Save URL to LocalStorage for convenience
+      localStorage.setItem('gas_app_url', gasUrl);
+
+      const submitBtn = document.getElementById('fbSubmitBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin mr-1.5"></i> 傳送中...`;
+
+      // 使用 JSONP 方式跨域發送至 Google Apps Script 避開 CORS 錯誤
+      const callbackName = 'gasCallback_' + Math.round(100000 * Math.random());
+      
+      const script = document.createElement('script');
+      const queryParams = new URLSearchParams({
+        name: name,
+        position: position,
+        comments: comments,
+        callback: callbackName
+      });
+
+      // 設定 全域 JSONP 回調函數
+      window[callbackName] = function(response) {
+        delete window[callbackName];
+        document.body.removeChild(script);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane mr-1.5"></i> 送出申訴`;
+
+        if (response && response.result === 'success') {
+          showToast('意見申訴已成功寫入 Google 試算表！');
+          document.getElementById('feedbackForm').reset();
+          document.getElementById('fbGasUrl').value = gasUrl;
+          closeFeedbackModal();
+        } else {
+          alert('提交失敗：' + (response ? response.error : '未知錯誤'));
+        }
+      };
+
+      // 錯誤處理
+      script.onerror = function() {
+        delete window[callbackName];
+        if (script.parentNode) document.body.removeChild(script);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane mr-1.5"></i> 送出申訴`;
+        alert('無法連接至 Google 試算表服務，請檢查 Web App URL 是否正確。');
+      };
+
+      script.src = `${gasUrl}?${queryParams.toString()}`;
+      document.body.appendChild(script);
+    }
+
+    // Toast Utility
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 3000);
+    }
+
+    // Escape HTML helper
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
+
+    // Initial Load
+    window.onload = function() {
+      renderBoard();
+      renderLogs();
+    };
+  </script>
+
+</body>
+</html>
